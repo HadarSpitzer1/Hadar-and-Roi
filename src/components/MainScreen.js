@@ -19,7 +19,7 @@ const mockDatabase = {
     table3: {
         schools: ['ידידיה - ירושלים', 'תיכון שהם - שהם', 'בן גוריון - הרצליה'],
         hours_range: [
-            '7:00 - 9:00', '9:00 - 11:00', '11:00 - 13:00', '13:00 - 15:00',
+            '8:00 - 10:00', '10:00 - 12:00', '12:00 - 14:00', '14:00 - 16:00',
         ],
         teachers: ['מר גפני', 'גברת חורי', 'מר אלבז', 'גברת אבו חדיר', 'מר מלכה'],
     },
@@ -61,7 +61,7 @@ export default function Component() {
                         >
                             <option value="table1">לקות שמיעה</option>
                             <option value="table2">לקות למידה</option>
-                            <option value="table3">לקות התנהגות</option>
+                            <option value="table3">לקות ראייה</option>
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                             <svg
