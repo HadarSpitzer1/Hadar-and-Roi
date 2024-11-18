@@ -7,7 +7,7 @@ function App() {
     const [result, setResult] = useState(null);
 
     // Your API Gateway endpoint
-    const API_URL = 'https://<api-id>.execute-api.<region>.amazonaws.com/dev/increment'; // Replace with your API Gateway URL
+    const API_URL = 'https://kt06ijxgal.execute-api.us-east-1.amazonaws.com/dev/double'; // Replace with your API Gateway URL
 
     // Function to call Lambda
     const callIncrementLambda = async (number) => {
