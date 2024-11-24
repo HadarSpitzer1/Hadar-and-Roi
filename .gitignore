@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
+/video_screens
 .pnp.js
 
 # testing

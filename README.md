@@ -1,5 +1,25 @@
 # Getting Started with Create React App
 
+when starting, go to terminal and use the command:
+    git pull
+
+after finish, , go to terminal and use the command:
+    git add .
+    git commit
+    git push origin main
+
+when deploying to S3:
+    npm run build
+    aws s3 sync build/ s3://match-box-s3-bucket
+
+run locally, on the main folder:
+    npm start
+
+
+
+cloud url:
+    http://match-box-s3-bucket.s3-website-us-east-1.amazonaws.com/
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
