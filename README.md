@@ -15,6 +15,16 @@ when deploying to S3:
 run locally, on the main folder:
     npm start
 
+stuff should be installed:
+    npm install aws-amplify @aws-amplify/ui-react
+    npm install -g @aws-amplify/cli
+    npm install react-icons
+    npm i @auth0/auth0-react
+    npm install dotenv
+
+
+After we buy a DOMAIN name:
+    we should change the allowed URLs in the OKTA auth0 app settings.
 
 
 cloud url:

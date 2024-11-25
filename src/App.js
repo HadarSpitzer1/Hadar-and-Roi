@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import NavBar from './components/NavBar';
-import BoardsScreen from './components/BoardsScreen';
+import BoardsScreen from './components/Boards/BoardsScreen';
 import EmployeesScreen from './components/EmployeesScreen';
 import SettingsScreen from './components/SettingsScreen';
 import ContactScreen from './components/ContactScreen';
+import LandingPage from './components/LandingPage'; // Import the LandingPage component
+import { useAuth0 } from '@auth0/auth0-react'; // Import useAuth0 hook
 
 const defaultEmployees = [
   'מר כהן',
@@ -17,6 +19,8 @@ const defaultEmployees = [
 ];
 
 const App = () => {
+  const { isLoading, isAuthenticated } = useAuth0(); // Destructure isLoading and isAuthenticated
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : false;
@@ -97,6 +101,21 @@ const App = () => {
     }
   };
 
+  if (isLoading) {
+    // While Auth0 is loading the authentication state
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    // If the user is not authenticated, show the landing page
+    return <LandingPage />;
+  }
+
+  // If the user is authenticated, show the main app
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
       <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">

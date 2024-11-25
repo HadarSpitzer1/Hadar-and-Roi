@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { Layout, Users, Settings, PhoneCall } from 'lucide-react';
+import { useAuth0 } from '@auth0/auth0-react';
+
 
 const NavBar = ({ currentPage, setCurrentPage }) => {
   const isActive = (page) => currentPage === page;
@@ -12,6 +14,8 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
         ? 'bg-indigo-600 text-white hover:bg-indigo-700'
         : 'hover:bg-indigo-50 dark:hover:bg-indigo-900/50 text-gray-700 dark:text-gray-200'
     }`;
+
+  const { logout } = useAuth0();
 
   return (
     <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg mb-8 sticky top-0 z-50">
@@ -54,6 +58,14 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
               <PhoneCall size={20} />
               <span>צור קשר</span>
             </button>
+
+            <button
+              onClick={() => logout({ returnTo: window.location.origin })}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg">
+                  התנתק
+            </button>
+            
+
           </div>
         </div>
       </div>
