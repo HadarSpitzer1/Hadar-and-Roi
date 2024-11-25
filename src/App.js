@@ -1,49 +1,110 @@
-// src/App.js
-import React, { useState } from 'react';
-import axios from 'axios';
-import Table from './components/MainScreen';
+// App.js
 
-function App() {
-    const [result, setResult] = useState(null);
-    const [error, setError] = useState(null);
+import React, { useState, useEffect } from 'react';
+import NavBar from './components/NavBar';
+import BoardsScreen from './components/BoardsScreen';
+import EmployeesScreen from './components/EmployeesScreen';
+import SettingsScreen from './components/SettingsScreen';
+import ContactScreen from './components/ContactScreen';
 
-    // Your API Gateway endpoint
-    const API_URL = 'https://kt06ijxgal.execute-api.us-east-1.amazonaws.com/dev/double';
+const defaultEmployees = [
+  'מר כהן',
+  'גברת לוי',
+  'מר רפאל',
+  'גברת סויסה',
+  'מר ביטון',
+  'גברת שפירא',
+];
 
-    // Function to call Lambda
-    const callIncrementLambda = async (number) => {
-        try {
-            const response = await axios({
-                method: 'post',
-                url: API_URL,
-                data: { number },
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            
-            setResult(response.data.result);
-            setError(null);
-            console.log("Result from Lambda:", response.data.result);
-        } catch (error) {
-            setError(error.message);
-            console.error("Error calling Lambda:", error);
-        }
-    };
+const App = () => {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
+  const [currentTable, setCurrentTable] = useState('table1');
+  const [currentPage, setCurrentPage] = useState('boards');
 
-    return (
-        <div className="App">
-            <h1>מערכת שיבוץ</h1>
-            <Table />
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <button onClick={() => callIncrementLambda(10)}>
-                    Increment Number
-                </button>
-                {result !== null && <p>Incremented Result: {result}</p>}
-                {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-            </div>
-        </div>
-    );
-}
+  // Initialize employees state with defaultEmployees array
+  const [employees, setEmployees] = useState(() => {
+    const savedEmployees = localStorage.getItem('employees');
+    return savedEmployees ? JSON.parse(savedEmployees) : defaultEmployees;
+  });
+
+  // Initialize schedules state per table
+  const [schedules, setSchedules] = useState(() => {
+    const savedSchedules = localStorage.getItem('schedules');
+    return savedSchedules
+      ? JSON.parse(savedSchedules)
+      : {
+          table1: {},
+          table2: {},
+          table3: {},
+        };
+  });
+
+  // Save dark mode preference, employees, and schedules to localStorage
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    localStorage.setItem('employees', JSON.stringify(employees));
+    localStorage.setItem('schedules', JSON.stringify(schedules));
+
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode, employees, schedules]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'boards':
+        return (
+          <BoardsScreen
+            currentTable={currentTable}
+            setCurrentTable={setCurrentTable}
+            schedule={schedules[currentTable] || {}}
+            setSchedule={(newSchedule) =>
+              setSchedules((prevSchedules) => ({
+                ...prevSchedules,
+                [currentTable]: newSchedule,
+              }))
+            }
+            employees={employees}
+          />
+        );
+      case 'employees':
+        return (
+          <EmployeesScreen
+            employees={employees}
+            setEmployees={setEmployees}
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsScreen
+            isDarkMode={isDarkMode}
+            toggleDarkMode={toggleDarkMode}
+          />
+        );
+      case 'contact':
+        return <ContactScreen />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+      <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
+        <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="max-w-6xl mx-auto p-8">{renderCurrentPage()}</div>
+      </div>
+    </div>
+  );
+};
 
 export default App;
