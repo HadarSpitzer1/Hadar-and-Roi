@@ -1,5 +1,3 @@
-// components/LandingPage.js
-
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -11,7 +9,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-between h-screen bg-gradient-to-br from-indigo-100 via-blue-200 to-indigo-200">
+    <div className="h-screen w-screen flex flex-col items-center justify-between bg-gradient-to-br from-indigo-100 via-blue-200 to-indigo-200">
       {/* Header Section */}
       <div className="text-center mt-16">
         <h1 className="text-6xl font-extrabold text-indigo-800 mb-4">MatchBox</h1>
