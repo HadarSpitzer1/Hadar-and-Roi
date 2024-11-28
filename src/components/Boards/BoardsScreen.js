@@ -1,9 +1,7 @@
-// components/BoardsScreen.js
-
-import React, { useEffect, useState } from 'react';
-import TableHeader from './TableHeader';
-import TableBody from './TableBody';
-import mockDatabase from '../../data/mockDatabase';
+import React, { useEffect, useState } from "react";
+import TableHeader from "./TableHeader";
+import TableBody from "./TableBody";
+import mockDatabase from "../../data/mockDatabase";
 
 const BoardsScreen = ({
   currentTable,
@@ -12,41 +10,20 @@ const BoardsScreen = ({
   setSchedule,
   employees,
 }) => {
-  // Initialize schools and hours with state
+  // Initialize schools and hours based on the passed schedule or default mockDatabase
   const [schools, setSchools] = useState(() => {
-    const savedSchools = localStorage.getItem(`schools_${currentTable}`);
-    return savedSchools
-      ? JSON.parse(savedSchools)
-      : [...mockDatabase[currentTable].schools];
+    return schedule?.schools || [...mockDatabase[currentTable].schools];
   });
 
   const [hours, setHours] = useState(() => {
-    const savedHours = localStorage.getItem(`hours_${currentTable}`);
-    return savedHours
-      ? JSON.parse(savedHours)
-      : currentTable === 'table1'
-      ? [...mockDatabase.table1.hours]
-      : [...mockDatabase[currentTable].hours_range];
+    return schedule?.hours || [...mockDatabase[currentTable].hours];
   });
 
-  // Update schools and hours when currentTable changes
+  // Update schools and hours when the table changes
   useEffect(() => {
-    const savedSchools = localStorage.getItem(`schools_${currentTable}`);
-    setSchools(
-      savedSchools
-        ? JSON.parse(savedSchools)
-        : [...mockDatabase[currentTable].schools]
-    );
-
-    const savedHours = localStorage.getItem(`hours_${currentTable}`);
-    setHours(
-      savedHours
-        ? JSON.parse(savedHours)
-        : currentTable === 'table1'
-        ? [...mockDatabase.table1.hours]
-        : [...mockDatabase[currentTable].hours_range]
-    );
-  }, [currentTable]);
+    setSchools(schedule?.schools || [...mockDatabase[currentTable].schools]);
+    setHours(schedule?.hours || [...mockDatabase[currentTable].hours]);
+  }, [currentTable, schedule]);
 
   // Conflict detection logic
   const [conflicts, setConflicts] = useState({});
@@ -93,7 +70,7 @@ const BoardsScreen = ({
 
   // Editing state and handlers for schools
   const [editingSchoolIndex, setEditingSchoolIndex] = useState(null);
-  const [newSchoolName, setNewSchoolName] = useState('');
+  const [newSchoolName, setNewSchoolName] = useState("");
   const [hoveredSchoolIndex, setHoveredSchoolIndex] = useState(null);
 
   const handleEditSchool = (index) => {
@@ -110,12 +87,12 @@ const BoardsScreen = ({
     updatedSchools[index] = newSchoolName.trim() || schools[index];
     setSchools(updatedSchools);
     setEditingSchoolIndex(null);
-    setNewSchoolName('');
+    setNewSchoolName("");
   };
 
   // Editing state and handlers for hours
   const [editingHourIndex, setEditingHourIndex] = useState(null);
-  const [newHourLabel, setNewHourLabel] = useState('');
+  const [newHourLabel, setNewHourLabel] = useState("");
   const [hoveredHourIndex, setHoveredHourIndex] = useState(null);
 
   const handleEditHour = (index) => {
@@ -132,7 +109,7 @@ const BoardsScreen = ({
     updatedHours[index] = newHourLabel.trim() || hours[index];
     setHours(updatedHours);
     setEditingHourIndex(null);
-    setNewHourLabel('');
+    setNewHourLabel("");
   };
 
   // Functions for adding and deleting schools/hours
@@ -174,15 +151,6 @@ const BoardsScreen = ({
 
     setSchedule(updatedSchedule);
   };
-
-  // Persist changes to localStorage
-  useEffect(() => {
-    localStorage.setItem(`schools_${currentTable}`, JSON.stringify(schools));
-  }, [schools, currentTable]);
-
-  useEffect(() => {
-    localStorage.setItem(`hours_${currentTable}`, JSON.stringify(hours));
-  }, [hours, currentTable]);
 
   return (
     <div className="space-y-8">
