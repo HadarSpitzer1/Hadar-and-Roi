@@ -1,5 +1,3 @@
-// components/TableHeader.js
-
 import React from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 
@@ -69,7 +67,6 @@ const TableHeader = ({
             )}
           </th>
         ))}
-        {/* Add Column Button */}
         <th className="p-3 text-center border-l border-indigo-200 dark:border-indigo-800">
           <button
             onClick={handleAddSchool}

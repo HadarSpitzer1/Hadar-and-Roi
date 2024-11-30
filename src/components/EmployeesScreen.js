@@ -1,45 +1,17 @@
 import React, { useState, useRef } from "react";
-import { fetchUserData, saveUserData } from "../api";
+import { useBoards } from "./Boards/BoardsContext"; // Use context for shared state
+import { saveUserData } from "../api";
 
 const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
-  const [employees, setEmployees] = useState([]);
-  const [newEmployee, setNewEmployee] = useState('');
+  const { employees, setEmployees } = useBoards(); // Access employees from context
+  const [newEmployee, setNewEmployee] = useState("");
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const itemsRef = useRef([]);
 
-  // Load employees from server
-  const loadEmployees = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      if (!getAccessTokenSilently) {
-        throw new Error("Authentication function not provided.");
-      }
-
-      const token = await getAccessTokenSilently();
-      const data = await fetchUserData(username, () => token);
-
-      // Check and handle null or unexpected data
-      if (!data || !data.employees) {
-        console.warn("No employees data found. Defaulting to an empty array.");
-        setEmployees([]);
-        return;
-      }
-
-      setEmployees(data.employees);
-    } catch (err) {
-      console.error("Error fetching employees:", err);
-      setError("Failed to load employees. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Save employees to server
+  // Save employees to the server
   const saveEmployees = async () => {
     try {
       if (!getAccessTokenSilently) {
@@ -47,7 +19,7 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
       }
 
       const token = await getAccessTokenSilently();
-      await saveUserData(username, {}, employees, () => token); // Empty schedule, only saving employees
+      await saveUserData(username, {}, employees, () => token); // Save employees to backend
       alert("Employees saved successfully!");
     } catch (err) {
       console.error("Error saving employees:", err);
@@ -57,13 +29,15 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
 
   const addEmployee = () => {
     if (newEmployee.trim()) {
-      setEmployees([...employees, newEmployee.trim()]);
-      setNewEmployee('');
+      setEmployees((prevEmployees) => [...prevEmployees, newEmployee.trim()]);
+      setNewEmployee("");
     }
   };
 
   const removeEmployee = (index) => {
-    setEmployees(employees.filter((_, i) => i !== index));
+    setEmployees((prevEmployees) =>
+      prevEmployees.filter((_, i) => i !== index)
+    );
   };
 
   const handleDragStart = (index) => {
@@ -88,82 +62,76 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
   };
 
   return (
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg max-w-2xl mx-auto p-6">
-        <div className="space-y-6">
-          {/* Load Employees Button */}
+    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg max-w-2xl mx-auto p-6">
+      <div className="space-y-6">
+        {/* Error Message */}
+        {error && <div className="text-red-500">{error}</div>}
+
+        {/* Input and Add Employee Button */}
+        <div className="flex gap-4">
+          <input
+            type="text"
+            value={newEmployee}
+            onChange={(e) => setNewEmployee(e.target.value)}
+            placeholder="שם העובד החדש"
+            className="flex-1 p-2 border border-indigo-200 dark:border-indigo-800 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          />
           <button
-              onClick={loadEmployees}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            onClick={addEmployee}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
-            Load Employees
+            הוסף עובד
           </button>
+        </div>
 
-          {/* Error Message */}
-          {error && <div className="text-red-500">{error}</div>}
+        {/* Employees List */}
+        <div className="space-y-4">
+          {loading && <div>Loading...</div>}
+          {!loading &&
+            employees.map((employee, index) => {
+              const isDragging = index === draggedIndex;
 
-          {/* Input and Add Employee Button */}
-          <div className="flex gap-4">
-            <input
-                type="text"
-                value={newEmployee}
-                onChange={(e) => setNewEmployee(e.target.value)}
-                placeholder="שם העובד החדש"
-                className="flex-1 p-2 border border-indigo-200 dark:border-indigo-800 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-            />
-            <button
-                onClick={addEmployee}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              הוסף עובד
-            </button>
-          </div>
+              return (
+                <div
+                  key={index}
+                  ref={(el) => (itemsRef.current[index] = el)}
+                  className={`flex justify-between items-center p-3 rounded-lg transition-transform duration-300 ${
+                    isDragging
+                      ? "opacity-50"
+                      : "bg-indigo-50 dark:bg-indigo-900/50"
+                  }`}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragEnter={(e) => handleDragEnter(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  <button
+                    onClick={() => removeEmployee(index)}
+                    className="px-3 py-1 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
+                  >
+                    הסר
+                  </button>
 
-          {/* Employees List */}
-          <div className="space-y-4">
-            {loading && <div>Loading...</div>}
-            {!loading &&
-                employees.map((employee, index) => {
-                  const isDragging = index === draggedIndex;
+                  <span className="text-gray-700 dark:text-gray-200">
+                    {employee}
+                  </span>
+                </div>
+              );
+            })}
+        </div>
 
-                  return (
-                      <div
-                          key={index}
-                          ref={(el) => (itemsRef.current[index] = el)}
-                          className={`flex justify-between items-center p-3 rounded-lg transition-transform duration-300 ${
-                              isDragging
-                                  ? 'opacity-50'
-                                  : 'bg-indigo-50 dark:bg-indigo-900/50'
-                          }`}
-                          draggable
-                          onDragStart={() => handleDragStart(index)}
-                          onDragEnter={(e) => handleDragEnter(e, index)}
-                          onDragEnd={handleDragEnd}
-                          onDragOver={(e) => e.preventDefault()}
-                      >
-                        <button
-                            onClick={() => removeEmployee(index)}
-                            className="px-3 py-1 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
-                        >
-                          הסר
-                        </button>
-
-                        <span className="text-gray-700 dark:text-gray-200">{employee}</span>
-                      </div>
-                  );
-                })}
-          </div>
-
-          {/* Save Employees Button */}
-          <div className="text-center">
-            <button
-                onClick={saveEmployees}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              שמור עובדים לענן
-            </button>
-          </div>
+        {/* Save Employees Button */}
+        <div className="text-center">
+          <button
+            onClick={saveEmployees}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            שמור עובדים לענן
+          </button>
         </div>
       </div>
+    </div>
   );
 };
 

@@ -6,6 +6,7 @@ import SettingsScreen from "./components/SettingsScreen";
 import ContactScreen from "./components/ContactScreen";
 import LandingPage from "./components/LandingPage";
 import { useAuth0 } from "@auth0/auth0-react";
+import { BoardsProvider } from "./components/Boards/BoardsContext";
 
 const App = () => {
   const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -34,25 +35,24 @@ const App = () => {
   const renderCurrentPage = () => {
     if (currentPage === "boards") {
       return (
-          <BoardsScreen
-              username={user.sub}
-              getAccessTokenSilently={getAccessTokenSilently}
-          />
+        <BoardsScreen
+          username={user.sub}
+          getAccessTokenSilently={getAccessTokenSilently}
+        />
       );
     } else if (currentPage === "employees") {
       return (
-          <EmployeesScreen
-              username={user.sub}
-              getAccessTokenSilently={getAccessTokenSilently}
-          />
+        <EmployeesScreen
+          username={user.sub}
+          getAccessTokenSilently={getAccessTokenSilently}
+        />
       );
-    }
-     else if (currentPage === "settings") {
+    } else if (currentPage === "settings") {
       return (
-          <SettingsScreen
-              isDarkMode={isDarkMode}
-              toggleDarkMode={toggleDarkMode}
-          />
+        <SettingsScreen
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+        />
       );
     } else if (currentPage === "contact") {
       return <ContactScreen />;
@@ -61,9 +61,9 @@ const App = () => {
 
   if (isLoading) {
     return (
-        <div className="flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-        </div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      </div>
     );
   }
 
@@ -72,12 +72,14 @@ const App = () => {
   }
 
   return (
+    <BoardsProvider>
       <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
         <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
           <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
           <div className="max-w-6xl mx-auto p-8">{renderCurrentPage()}</div>
         </div>
       </div>
+    </BoardsProvider>
   );
 };
 

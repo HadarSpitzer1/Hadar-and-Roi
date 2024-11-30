@@ -1,5 +1,3 @@
-// components/TableBody.js
-
 import React from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 
@@ -9,12 +7,6 @@ const TableBody = ({
   schedule,
   conflicts,
   employees,
-  editingHourIndex,
-  newHourLabel,
-  handleEditHour,
-  handleHourLabelChange,
-  handleHourLabelSave,
-  handleDeleteHour,
   hoveredHourIndex,
   setHoveredHourIndex,
   handleTeacherSelect,
@@ -23,58 +15,17 @@ const TableBody = ({
   return (
     <tbody>
       {hours.map((hour, rowIndex) => (
-        <tr
-          key={rowIndex}
-          className="border-b border-indigo-100 dark:border-indigo-800/50"
-        >
+        <tr key={rowIndex} className="border-b border-indigo-100 dark:border-indigo-800/50">
           <td
             className="p-3 font-medium bg-indigo-50/50 dark:bg-indigo-900/30 text-center text-gray-700 dark:text-gray-200 relative"
             dir="ltr"
             onMouseEnter={() => setHoveredHourIndex(rowIndex)}
             onMouseLeave={() => setHoveredHourIndex(null)}
           >
-            {editingHourIndex === rowIndex ? (
-              <input
-                type="text"
-                value={newHourLabel}
-                onChange={(e) => handleHourLabelChange(e.target.value)}
-                onBlur={() => handleHourLabelSave(rowIndex)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleHourLabelSave(rowIndex);
-                  }
-                }}
-                autoFocus
-                className="w-full p-1 text-center bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-800 rounded"
-              />
-            ) : (
-              <div className="flex items-center justify-center">
-                <span className="cursor-default">{hour}</span>
-                {hoveredHourIndex === rowIndex && (
-                  <>
-                    <button
-                      onClick={() => handleEditHour(rowIndex)}
-                      className="ml-2 text-blue-600 hover:text-blue-800"
-                      title="ערוך שעה"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteHour(rowIndex)}
-                      className="ml-2 text-red-600 hover:text-red-800"
-                      title="מחק שורה"
-                    >
-                      <FaTrash />
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+            <span className="cursor-default">{hour}</span>
           </td>
           {schools.map((school) => {
-            const isConflict =
-              conflicts[hour] && conflicts[hour].includes(school);
-
+            const isConflict = conflicts[hour] && conflicts[hour].includes(school);
             return (
               <td
                 key={`${school}-${hour}`}
@@ -89,9 +40,7 @@ const TableBody = ({
                       : 'bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-800 text-gray-700 dark:text-gray-200'
                   }`}
                   value={schedule[school]?.[hour] || ''}
-                  onChange={(e) =>
-                    handleTeacherSelect(school, hour, e.target.value)
-                  }
+                  onChange={(e) => handleTeacherSelect(school, hour, e.target.value)}
                 >
                   <option value="">בחר מורה</option>
                   {employees.map((teacher) => (
@@ -103,11 +52,9 @@ const TableBody = ({
               </td>
             );
           })}
-          {/* Extra cell for the add column button */}
           <td className="p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50"></td>
         </tr>
       ))}
-      {/* Add Row Button */}
       <tr>
         <td className="p-3 text-center">
           <button
@@ -119,14 +66,8 @@ const TableBody = ({
           </button>
         </td>
         {schools.map((_, index) => (
-          <td
-            key={index}
-            className="p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50"
-          >
-            {/* Empty cells for alignment */}
-          </td>
+          <td key={index} className="p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50"></td>
         ))}
-        {/* Extra cell for the add column button */}
         <td className="p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50"></td>
       </tr>
     </tbody>
