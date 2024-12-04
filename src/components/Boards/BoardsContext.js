@@ -1,6 +1,3 @@
-//BoardsContext.js
-
-
 import React, { createContext, useState, useContext } from "react";
 
 const BoardsContext = createContext();
@@ -11,6 +8,7 @@ export const BoardsProvider = ({ children }) => {
   const [schedules, setSchedules] = useState({});
   const [employees, setEmployees] = useState([]);
   const [currentTable, setCurrentTable] = useState(null);
+  const [employeeData, setEmployeeData] = useState({}); // Track employee data
 
   return (
     <BoardsContext.Provider
@@ -21,6 +19,8 @@ export const BoardsProvider = ({ children }) => {
         setEmployees,
         currentTable,
         setCurrentTable,
+        employeeData,
+        setEmployeeData, // Ensure this is included in the context
       }}
     >
       {children}

@@ -1,31 +1,13 @@
 import React, { useState, useRef } from "react";
 import { useBoards } from "./Boards/BoardsContext"; // Use context for shared state
 import { saveUserData } from "../api";
+import SmallTable from "./SmallTable"; // Import the small table component
 
 const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
-  const { employees, setEmployees } = useBoards(); // Access employees from context
+  const { employees, setEmployees } = useBoards();
   const [newEmployee, setNewEmployee] = useState("");
-  const [draggedIndex, setDraggedIndex] = useState(null);
-  const [overIndex, setOverIndex] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [expandedEmployee, setExpandedEmployee] = useState(null); // Tracks expanded employee
   const itemsRef = useRef([]);
-
-  // Save employees to the server
-  const saveEmployees = async () => {
-    try {
-      if (!getAccessTokenSilently) {
-        throw new Error("Authentication function not provided.");
-      }
-
-      const token = await getAccessTokenSilently();
-      await saveUserData(username, {}, employees, () => token); // Save employees to backend
-      alert("Employees saved successfully!");
-    } catch (err) {
-      console.error("Error saving employees:", err);
-      alert("Failed to save employees. Please try again.");
-    }
-  };
 
   const addEmployee = () => {
     if (newEmployee.trim()) {
@@ -40,34 +22,13 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
     );
   };
 
-  const handleDragStart = (index) => {
-    setDraggedIndex(index);
-  };
-
-  const handleDragEnter = (e, index) => {
-    e.preventDefault();
-    setOverIndex(index);
-  };
-
-  const handleDragEnd = () => {
-    if (draggedIndex === null || overIndex === null) return;
-
-    const updatedEmployees = [...employees];
-    const [removed] = updatedEmployees.splice(draggedIndex, 1);
-    updatedEmployees.splice(overIndex, 0, removed);
-    setEmployees(updatedEmployees);
-
-    setDraggedIndex(null);
-    setOverIndex(null);
+  const toggleExpandEmployee = (index) => {
+    setExpandedEmployee((prev) => (prev === index ? null : index));
   };
 
   return (
     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg max-w-2xl mx-auto p-6">
       <div className="space-y-6">
-        {/* Error Message */}
-        {error && <div className="text-red-500">{error}</div>}
-
-        {/* Input and Add Employee Button */}
         <div className="flex gap-4">
           <input
             type="text"
@@ -84,51 +45,45 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
           </button>
         </div>
 
-        {/* Employees List */}
         <div className="space-y-4">
-          {loading && <div>Loading...</div>}
-          {!loading &&
-            employees.map((employee, index) => {
-              const isDragging = index === draggedIndex;
-
-              return (
-                <div
-                  key={index}
-                  ref={(el) => (itemsRef.current[index] = el)}
-                  className={`flex justify-between items-center p-3 rounded-lg transition-transform duration-300 ${
-                    isDragging
-                      ? "opacity-50"
-                      : "bg-indigo-50 dark:bg-indigo-900/50"
-                  }`}
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragEnter={(e) => handleDragEnter(e, index)}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={(e) => e.preventDefault()}
+          {employees.map((employee, index) => (
+            <div key={index}>
+              {/* Employee Row */}
+              <div
+                className={`flex justify-between items-center p-3 rounded-lg transition-all ${
+                  expandedEmployee === index
+                    ? "bg-indigo-100 dark:bg-indigo-800"
+                    : "bg-indigo-50 dark:bg-indigo-900/50"
+                }`}
+              >
+                <button
+                  onClick={() => removeEmployee(index)}
+                  className="px-3 py-1 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
                 >
-                  <button
-                    onClick={() => removeEmployee(index)}
-                    className="px-3 py-1 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
-                  >
-                    הסר
-                  </button>
+                  הסר
+                </button>
+                <span
+                  className="cursor-pointer text-gray-700 dark:text-gray-200 hover:underline"
+                  onClick={() => toggleExpandEmployee(index)}
+                >
+                  {employee}
+                </span>
+              </div>
 
-                  <span className="text-gray-700 dark:text-gray-200">
-                    {employee}
-                  </span>
+              {/* Expanded Table */}
+              {expandedEmployee === index && (
+                <div
+                  className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow-inner transition-all"
+                  style={{
+                    maxHeight: "300px",
+                    overflow: "hidden",
+                  }}
+                >
+                <SmallTable employeeName={employee} />
                 </div>
-              );
-            })}
-        </div>
-
-        {/* Save Employees Button */}
-        <div className="text-center">
-          <button
-            onClick={saveEmployees}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            שמור עובדים לענן
-          </button>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
