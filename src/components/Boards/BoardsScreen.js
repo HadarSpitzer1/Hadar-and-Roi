@@ -109,9 +109,14 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setLoading(false);
     }
   };
-
+  (() => {
+    if (Object.keys(schedules).length === 0 && !loading) {
+      loadTables();
+    }
+  })();
   const handleTeacherSelect = (school, hour, teacher) => {
     const newSchedule = { ...schedule };
+<<<<<<< HEAD
     if (!newSchedule[school]) {
       newSchedule[school] = {};
     }
@@ -119,6 +124,22 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
     setSchedule(newSchedule);
 
+=======
+
+    // If the school doesn't exist in the schedule, create it
+    if (!newSchedule[school]) {
+      newSchedule[school] = {};
+    }
+
+    // Set the teacher for the specific school and hour
+    // If teacher is an empty string, it will remove the assignment
+    newSchedule[school][hour] = teacher || undefined;
+
+    // Update the local state
+    setSchedule(newSchedule);
+
+    // Update the schedules in the context
+>>>>>>> 7becf16d68ff49fa185e8420ca091617f11e9272
     const updatedSchedules = {
       ...schedules,
       [currentTable]: {
@@ -133,10 +154,8 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const handleSave = async () => {
     try {
       await saveUserData(username, schedules, employees, getAccessTokenSilently);
-      alert("Data saved successfully!");
     } catch (err) {
       console.error("Error saving data:", err);
-      alert("Failed to save data. Please try again.");
     }
   };
 
@@ -158,7 +177,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const deleteCurrentTable = () => {
     if (!currentTable) {
-      alert("No table selected to delete!");
       return;
     }
 
@@ -186,12 +204,10 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const handleRenameTable = () => {
     if (!newTableName.trim()) {
-      alert("Table name cannot be empty!");
       return;
     }
 
     if (schedules[newTableName]) {
-      alert("A table with this name already exists!");
       return;
     }
 
@@ -413,7 +429,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       {error && <div>{error}</div>}
       {!loading && Object.keys(schedules).length === 0 && (
         <div className="text-center text-gray-500 dark:text-gray-400">
-          No tables available. Click "Add New Table" to create one.
+          No tables available yet. Click "Add New Table" to get started!
         </div>
       )}
       {!loading && Object.keys(schedules).length > 0 && (
