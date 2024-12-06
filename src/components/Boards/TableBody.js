@@ -1,3 +1,4 @@
+// TableBody.js
 import React from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 
@@ -11,6 +12,12 @@ const TableBody = ({
   setHoveredHourIndex,
   handleTeacherSelect,
   handleAddHour,
+  editingHourIndex,
+  newHourLabel,
+  handleEditHour,
+  handleHourLabelChange,
+  handleHourLabelSave,
+  handleDeleteHour,
 }) => {
   return (
     <tbody>
@@ -22,7 +29,43 @@ const TableBody = ({
             onMouseEnter={() => setHoveredHourIndex(rowIndex)}
             onMouseLeave={() => setHoveredHourIndex(null)}
           >
-            <span className="cursor-default">{hour}</span>
+            {editingHourIndex === rowIndex ? (
+              <input
+                type="text"
+                value={newHourLabel}
+                onChange={(e) => handleHourLabelChange(e.target.value)}
+                onBlur={() => handleHourLabelSave(rowIndex)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleHourLabelSave(rowIndex);
+                  }
+                }}
+                autoFocus
+                className="w-full p-1 text-center bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-800 rounded"
+              />
+            ) : (
+              <div className="flex items-center justify-center">
+                <span className="cursor-default">{hour}</span>
+                {hoveredHourIndex === rowIndex && (
+                  <div className="absolute top-0 left-0 flex space-x-2 px-1">
+                    <button
+                      onClick={() => handleEditHour(rowIndex)}
+                      className="text-blue-600 hover:text-blue-800"
+                      title="Edit Row Name"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteHour(rowIndex)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Delete Row"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </td>
           {schools.map((school) => {
             const isConflict = conflicts[hour] && conflicts[hour].includes(school);

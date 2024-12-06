@@ -1,8 +1,8 @@
-// BoardsScreen.js
-
+// BoardScreen.js
 import React, { useEffect, useState } from "react";
 import { fetchUserData, saveUserData } from "../../api";
 import { FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash } from "react-icons/fa";
+import axios from "axios"; // Import axios for making POST requests
 import TableHeader from "./TableHeader";
 import TableBody from "./TableBody";
 import { useBoards } from "./BoardsContext";
@@ -15,24 +15,26 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setEmployees,
     currentTable,
     setCurrentTable,
+    employeeData, // Added employeeData from context
   } = useBoards();
 
   const [schools, setSchools] = useState([]);
   const [hours, setHours] = useState([]);
   const [schedule, setSchedule] = useState({});
-  const [hoveredHourIndex, setHoveredHourIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTableName, setNewTableName] = useState("");
 
-  // Added state variables for editing schools
   const [editingSchoolIndex, setEditingSchoolIndex] = useState(null);
-  const [newSchoolName, setNewSchoolName] = useState('');
+  const [newSchoolName, setNewSchoolName] = useState("");
   const [hoveredSchoolIndex, setHoveredSchoolIndex] = useState(null);
 
-  // Update local table data whenever the current table changes
+  const [editingHourIndex, setEditingHourIndex] = useState(null);
+  const [newHourLabel, setNewHourLabel] = useState("");
+  const [hoveredHourIndex, setHoveredHourIndex] = useState(null);
+
   useEffect(() => {
     if (currentTable && schedules[currentTable]) {
       const tableData = schedules[currentTable];
@@ -41,6 +43,44 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setSchedule(tableData.schedule || {});
     }
   }, [currentTable, schedules]);
+
+  const calculateConstraints = () => {
+    const unavailable_constraints = {};
+
+    employees.forEach((employee) => {
+      const markedCells = employeeData[employee] || {};
+      unavailable_constraints[employee] = Object.keys(markedCells)
+        .filter((key) => markedCells[key])
+        .map((key) => parseInt(key, 10));
+    });
+
+    return unavailable_constraints;
+  };
+
+  const handleSolve = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const payload = {
+        workers: employees,
+        unavailable_constraints: calculateConstraints(),
+      };
+
+      const response = await axios.post(
+        "https://us-east1-matchbox-443614.cloudfunctions.net/function-1",
+        payload
+      );
+
+      console.log("Solve Response:", response.data);
+      alert("Solve successful! Check the console for results.");
+    } catch (err) {
+      console.error("Error solving constraints:", err);
+      setError("Failed to solve constraints. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadTables = async () => {
     try {
@@ -71,30 +111,22 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   };
 
   const handleTeacherSelect = (school, hour, teacher) => {
-    // Create a new schedule object to maintain immutability
     const newSchedule = { ...schedule };
-    
-    // If the school doesn't exist in the schedule, create it
     if (!newSchedule[school]) {
       newSchedule[school] = {};
     }
-    
-    // Set the teacher for the specific school and hour
-    // If teacher is an empty string, it will remove the assignment
     newSchedule[school][hour] = teacher || undefined;
-    
-    // Update the local state
+
     setSchedule(newSchedule);
-    
-    // Update the schedules in the context
+
     const updatedSchedules = {
       ...schedules,
       [currentTable]: {
         ...schedules[currentTable],
-        schedule: newSchedule
-      }
+        schedule: newSchedule,
+      },
     };
-    
+
     setSchedules(updatedSchedules);
   };
 
@@ -184,24 +216,20 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setSchedule(tableData.schedule || {});
   };
 
-  // Implement handleEditSchool
   const handleEditSchool = (index) => {
     setEditingSchoolIndex(index);
     setNewSchoolName(schools[index]);
   };
 
-  // Implement handleSchoolNameChange
   const handleSchoolNameChange = (value) => {
     setNewSchoolName(value);
   };
 
-  // Implement handleSchoolNameSave
   const handleSchoolNameSave = (index) => {
     const updatedSchools = [...schools];
     updatedSchools[index] = newSchoolName;
     setSchools(updatedSchools);
 
-    // Update the schedules in the context
     const updatedSchedules = {
       ...schedules,
       [currentTable]: {
@@ -212,21 +240,18 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setSchedules(updatedSchedules);
 
     setEditingSchoolIndex(null);
-    setNewSchoolName('');
+    setNewSchoolName("");
   };
 
-  // Implement handleDeleteSchool
   const handleDeleteSchool = (index) => {
-    if (window.confirm('Are you sure you want to delete this school?')) {
+    if (window.confirm("Are you sure you want to delete this school?")) {
       const updatedSchools = schools.filter((_, i) => i !== index);
 
-      // Remove the school's schedule
       const { [schools[index]]: _, ...updatedSchedule } = schedule;
 
       setSchools(updatedSchools);
       setSchedule(updatedSchedule);
 
-      // Update the schedules in the context
       const updatedSchedules = {
         ...schedules,
         [currentTable]: {
@@ -239,13 +264,11 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     }
   };
 
-  // Implement handleAddSchool
   const handleAddSchool = () => {
     const newSchoolName = `New School ${schools.length + 1}`;
     const updatedSchools = [...schools, newSchoolName];
     setSchools(updatedSchools);
 
-    // Update the schedules in the context
     const updatedSchedules = {
       ...schedules,
       [currentTable]: {
@@ -256,9 +279,77 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setSchedules(updatedSchedules);
   };
 
+  const handleAddHour = () => {
+    const newHourName = `Hour ${hours.length + 1}`;
+    const updatedHours = [...hours, newHourName];
+    setHours(updatedHours);
+
+    const updatedSchedules = {
+      ...schedules,
+      [currentTable]: {
+        ...schedules[currentTable],
+        hours: updatedHours,
+      },
+    };
+    setSchedules(updatedSchedules);
+  };
+
+  const handleEditHour = (index) => {
+    setEditingHourIndex(index);
+    setNewHourLabel(hours[index]);
+  };
+
+  const handleHourLabelChange = (value) => {
+    setNewHourLabel(value);
+  };
+
+  const handleHourLabelSave = (index) => {
+    const updatedHours = [...hours];
+    updatedHours[index] = newHourLabel;
+    setHours(updatedHours);
+
+    const updatedSchedules = {
+      ...schedules,
+      [currentTable]: {
+        ...schedules[currentTable],
+        hours: updatedHours,
+      },
+    };
+    setSchedules(updatedSchedules);
+
+    setEditingHourIndex(null);
+    setNewHourLabel("");
+  };
+
+  const handleDeleteHour = (index) => {
+    if (window.confirm("Are you sure you want to delete this hour?")) {
+      const updatedHours = hours.filter((_, i) => i !== index);
+
+      // Remove the hour from the schedule for each school
+      const updatedSchedule = { ...schedule };
+      schools.forEach(school => {
+        if (updatedSchedule[school]) {
+          delete updatedSchedule[school][hours[index]];
+        }
+      });
+
+      setHours(updatedHours);
+      setSchedule(updatedSchedule);
+
+      const updatedSchedules = {
+        ...schedules,
+        [currentTable]: {
+          ...schedules[currentTable],
+          hours: updatedHours,
+          schedule: updatedSchedule,
+        },
+      };
+      setSchedules(updatedSchedules);
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Toolbar */}
       <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
         <div className="flex items-center space-x-4">
           <button
@@ -296,6 +387,13 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
           >
             <FaTrash />
           </button>
+          <button
+            onClick={handleSolve}
+            className="p-2 bg-indigo-500 text-white rounded-full hover:bg-indigo-600"
+            title="Solve"
+          >
+            Solve
+          </button>
         </div>
 
         <select
@@ -311,7 +409,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
         </select>
       </div>
 
-      {/* Main Content */}
       {loading && <div>Loading...</div>}
       {error && <div>{error}</div>}
       {!loading && Object.keys(schedules).length === 0 && (
@@ -323,41 +420,43 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
         <div>
           <div className="overflow-x-auto bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg">
             <table className="w-full" dir="rtl">
-              <TableHeader
-                schools={schools}
-                editingSchoolIndex={editingSchoolIndex}
-                newSchoolName={newSchoolName}
-                handleEditSchool={handleEditSchool}
-                handleSchoolNameChange={handleSchoolNameChange}
-                handleSchoolNameSave={handleSchoolNameSave}
-                handleAddSchool={handleAddSchool}
-                handleDeleteSchool={handleDeleteSchool}
-                hoveredSchoolIndex={hoveredSchoolIndex}
-                setHoveredSchoolIndex={setHoveredSchoolIndex}
-              />
-              <TableBody
-                hours={hours}
-                schools={schools}
-                schedule={schedule}
-                conflicts={{}}
-                employees={employees}
-                handleTeacherSelect={handleTeacherSelect}
-                handleAddHour={() => {}}
-                editingHourIndex={null}
-                newHourLabel=""
-                handleEditHour={() => {}}
-                handleHourLabelChange={() => {}}
-                handleHourLabelSave={() => {}}
-                handleDeleteHour={() => {}}
-                hoveredHourIndex={hoveredHourIndex}
-                setHoveredHourIndex={setHoveredHourIndex}
-              />
+            <TableHeader
+            schools={schools}
+            editingSchoolIndex={editingSchoolIndex}
+            newSchoolName={newSchoolName}
+            handleEditSchool={handleEditSchool}
+            handleSchoolNameChange={handleSchoolNameChange}
+            handleSchoolNameSave={handleSchoolNameSave}
+            handleAddSchool={handleAddSchool}
+            handleDeleteSchool={handleDeleteSchool}
+            hoveredSchoolIndex={hoveredSchoolIndex}
+            setHoveredSchoolIndex={setHoveredSchoolIndex}
+            hoveredHourIndex = {hoveredHourIndex}
+            setHoveredHourIndex = {setHoveredHourIndex}
+            handleAddRow={handleAddHour} // Add this line
+          />
+          <TableBody
+            hours={hours}
+            schools={schools}
+            schedule={schedule}
+            conflicts={{}}
+            employees={employees}
+            handleTeacherSelect={handleTeacherSelect}
+            handleAddHour={handleAddHour}
+            editingHourIndex={editingHourIndex}
+            newHourLabel={newHourLabel}
+            handleEditHour={handleEditHour}
+            handleHourLabelChange={handleHourLabelChange}
+            handleHourLabelSave={handleHourLabelSave}
+            handleDeleteHour={handleDeleteHour}
+            hoveredHourIndex={hoveredHourIndex}
+            setHoveredHourIndex={setHoveredHourIndex}
+          />
             </table>
           </div>
         </div>
       )}
 
-      {/* Rename Table Modal */}
       {isRenaming && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4 shadow-lg">
