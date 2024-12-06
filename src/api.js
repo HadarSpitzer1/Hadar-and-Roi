@@ -14,8 +14,10 @@ export const saveUserData = async (userId, tables, employees, getAccessTokenSile
       },
       { headers: { Authorization: `Bearer ${token}` } }
     );
+    alert("Data saved successfully!");
   } catch (error) {
     console.error("Error saving user data:", error);
+    alert("Failed to save data. Please try again.");
   }
 };
 

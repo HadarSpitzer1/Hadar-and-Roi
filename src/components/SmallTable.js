@@ -29,7 +29,7 @@ const SmallTable = ({ employeeName }) => {
   const markedCells = employeeData?.[employeeName] || {};
 
   const toggleCell = (row, col) => {
-    const key = `${row}-${col}`;
+    const key = row * 7 + col; // Use i*7+j as the key
     const updatedMarkedCells = {
       ...markedCells,
       [key]: !markedCells[key], // Toggle the cell state
@@ -79,7 +79,8 @@ const SmallTable = ({ employeeName }) => {
 
             {/* Data Cells */}
             {schools.map((school, colIndex) => {
-              const isMarked = markedCells[`${rowIndex}-${colIndex}`];
+              const cellKey = rowIndex * 7 + colIndex;
+              const isMarked = markedCells[cellKey];
               return (
                 <td
                   key={colIndex}

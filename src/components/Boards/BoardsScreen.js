@@ -61,19 +61,61 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     try {
       setLoading(true);
       setError(null);
-
+  
       const payload = {
         workers: employees,
         unavailable_constraints: calculateConstraints(),
       };
-
+  
       const response = await axios.post(
         "https://us-east1-matchbox-443614.cloudfunctions.net/function-1",
         payload
       );
-
+  
       console.log("Solve Response:", response.data);
-      alert("Solve successful! Check the console for results.");
+      alert("Solve successful! Updating the table...");
+  
+      // Assuming response.data.schedule is the object you posted:
+      const rawSchedule = response.data.schedule;
+      const newSchedule = {};
+  
+      // Assuming your table is arranged so that:
+      // rows = hours
+      // columns = schools
+      // and that there are 7 columns (you mentioned using i%7)
+      // If 7 is not fixed, use schools.length instead of 7.
+      const numOfSchools = schools.length; // e.g., could be 7
+      const numOfHours = hours.length;
+  
+      for (const i in rawSchedule) {
+        const index = parseInt(i, 10);
+        const hourIndex = Math.floor(index / numOfSchools);
+        const schoolIndex = index % numOfSchools;
+  
+        // Ensure indices are within bounds of your arrays
+        if (hourIndex < numOfHours && schoolIndex < numOfSchools) {
+          const hour = hours[hourIndex];
+          const school = schools[schoolIndex];
+          const teacher = rawSchedule[i];
+  
+          if (!newSchedule[school]) {
+            newSchedule[school] = {};
+          }
+          newSchedule[school][hour] = teacher;
+        }
+      }
+  
+      setSchedule(newSchedule);
+  
+      const updatedSchedules = {
+        ...schedules,
+        [currentTable]: {
+          ...schedules[currentTable],
+          schedule: newSchedule,
+        },
+      };
+      setSchedules(updatedSchedules);
+  
     } catch (err) {
       console.error("Error solving constraints:", err);
       setError("Failed to solve constraints. Please try again.");
@@ -81,6 +123,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setLoading(false);
     }
   };
+  
 
   const loadTables = async () => {
     try {
@@ -109,14 +152,9 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setLoading(false);
     }
   };
-  (() => {
-    if (Object.keys(schedules).length === 0 && !loading) {
-      loadTables();
-    }
-  })();
+
   const handleTeacherSelect = (school, hour, teacher) => {
     const newSchedule = { ...schedule };
-<<<<<<< HEAD
     if (!newSchedule[school]) {
       newSchedule[school] = {};
     }
@@ -124,22 +162,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
     setSchedule(newSchedule);
 
-=======
-
-    // If the school doesn't exist in the schedule, create it
-    if (!newSchedule[school]) {
-      newSchedule[school] = {};
-    }
-
-    // Set the teacher for the specific school and hour
-    // If teacher is an empty string, it will remove the assignment
-    newSchedule[school][hour] = teacher || undefined;
-
-    // Update the local state
-    setSchedule(newSchedule);
-
-    // Update the schedules in the context
->>>>>>> 7becf16d68ff49fa185e8420ca091617f11e9272
     const updatedSchedules = {
       ...schedules,
       [currentTable]: {
@@ -154,8 +176,10 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const handleSave = async () => {
     try {
       await saveUserData(username, schedules, employees, getAccessTokenSilently);
+      alert("Data saved successfully!");
     } catch (err) {
       console.error("Error saving data:", err);
+      alert("Failed to save data. Please try again.");
     }
   };
 
@@ -177,6 +201,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const deleteCurrentTable = () => {
     if (!currentTable) {
+      alert("No table selected to delete!");
       return;
     }
 
@@ -204,10 +229,12 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const handleRenameTable = () => {
     if (!newTableName.trim()) {
+      alert("Table name cannot be empty!");
       return;
     }
 
     if (schedules[newTableName]) {
+      alert("A table with this name already exists!");
       return;
     }
 
@@ -429,7 +456,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       {error && <div>{error}</div>}
       {!loading && Object.keys(schedules).length === 0 && (
         <div className="text-center text-gray-500 dark:text-gray-400">
-          No tables available yet. Click "Add New Table" to get started!
+          No tables available. Click "Add New Table" to create one.
         </div>
       )}
       {!loading && Object.keys(schedules).length > 0 && (
