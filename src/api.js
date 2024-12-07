@@ -36,25 +36,3 @@ export const fetchUserData = async (username, getAccessTokenSilently) => {
         return null;
     }
 };
-
-// Send workers' constraints to the Google Cloud Function
-export const sendWorkersConstraints = async (workers, unavailableConstraints, getAccessTokenSilently) => {
-    try {
-        const token = await getAccessTokenSilently();
-        const payload = {
-            workers: workers,
-            unavailable_constraints: unavailableConstraints,
-        };
-
-        const response = await axios.post(GOOGLE_FUNCTION_URL, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        alert("Constraints sent successfully!");
-        return response.data;
-    } catch (error) {
-        console.error("Error sending workers' constraints:", error);
-        alert("Failed to send constraints. Please try again.");
-        return null;
-    }
-};
