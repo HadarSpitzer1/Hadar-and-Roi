@@ -1,6 +1,6 @@
 // BoardScreen.js
 import React, { useEffect, useState, useRef } from "react";
-import { fetchUserData, saveUserData, sendWorkersConstraints } from "../../api";
+import { fetchUserData, saveUserData } from "../../api";
 import { FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash } from "react-icons/fa";
 import axios from "axios"; // Import axios for making POST requests
 import TableHeader from "./TableHeader";
@@ -34,7 +34,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const [editingHourIndex, setEditingHourIndex] = useState(null);
   const [newHourLabel, setNewHourLabel] = useState("");
   const [hoveredHourIndex, setHoveredHourIndex] = useState(null);
-  const loadTablesCalled = useRef(false);
 
   useEffect(() => {
     if (currentTable && schedules[currentTable]) {
@@ -390,10 +389,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setSchedules(updatedSchedules);
     }
   };
-  if (!loadTablesCalled.current) {
-    loadTables();
-    loadTablesCalled.current = true;
-  }
   return (
       <div className="space-y-8">
         <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
