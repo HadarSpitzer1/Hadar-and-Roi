@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const useSolveSchedule = ({
                               employees,
@@ -9,10 +10,11 @@ const useSolveSchedule = ({
                               currentTable,
                               schedules,
                               setSchedules,
-                              setSchedule, // Add setSchedule to update the local schedule state
+                              setSchedule,
                           }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate(); // Hook for navigation
 
     const handleSolve = async () => {
         try {
@@ -65,6 +67,9 @@ const useSolveSchedule = ({
 
             setSchedules(updatedSchedules);
             setSchedule(newSchedule); // Update the local schedule state
+
+            // Navigate to BoardsScreen after solving
+            navigate("/");
         } catch (err) {
             console.error("Error solving constraints:", err);
             setError("Failed to solve constraints. Please try again.");

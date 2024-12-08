@@ -61,7 +61,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     currentTable,
     schedules,
     setSchedules,
-    setSchedule, // Pass setSchedule to update the local state
+    setSchedule,
   });
   const loadTables = async () => {
     try {
@@ -368,13 +368,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
             >
               <FaTrash />
             </button>
-            <button
-                onClick={handleSolve}
-                className="p-2 bg-indigo-500 text-white rounded-full hover:bg-indigo-600"
-                title="Solve"
-            >
-              {solving ? "Solving..." : "Solve"}
-            </button>
           </div>
 
           <select
@@ -466,6 +459,17 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
               </div>
             </div>
         )}
+        <div className="flex justify-center mt-6">
+          <div className="text-center">
+            <button
+                onClick={handleSolve}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              {solving ? "Solving..." : "Solve"}
+            </button>
+            {solveError && <div className="text-red-500 mt-2">{solveError}</div>}
+          </div>
+        </div>
       </div>
   );
 };

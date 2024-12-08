@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useBoards } from "./Boards/BoardsContext";
 import useSolveSchedule from "../hooks/useSolveSchedule";
 import SmallTable from "./SmallTable";
+import { useNavigate } from "react-router-dom";
 
 const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
   const {
@@ -15,7 +16,13 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
 
   const [newEmployee, setNewEmployee] = useState("");
   const [expandedEmployee, setExpandedEmployee] = useState(null);
-  const [schedule, setSchedule] = useState({}); // Add state to store the schedule
+  const [schedule, setSchedule] = useState({});
+
+  const navigate = useNavigate(); // Hook for navigation
+
+  // Get the schools and hours from the current table in schedules
+  const schools = schedules[currentTable]?.schools || [];
+  const hours = schedules[currentTable]?.hours || [];
 
   const calculateConstraints = () => {
     const unavailable_constraints = {};
@@ -33,12 +40,13 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
   const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
     employees,
     calculateConstraints,
-    schools: [],
-    hours: [],
+    schools,
+    hours,
     currentTable,
     schedules,
     setSchedules,
-    setSchedule, // Pass setSchedule to update the local state
+    setSchedule,
+    navigate, // Pass navigate to handle redirection after solving
   });
 
   const addEmployee = () => {
@@ -59,27 +67,19 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg max-w-2xl mx-auto p-6">
       <div className="space-y-6">
         <div className="flex gap-4">
+          <button
+              onClick={addEmployee}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            הוסף עובד
+          </button>
           <input
             type="text"
             value={newEmployee}
             onChange={(e) => setNewEmployee(e.target.value)}
-            placeholder="שם העובד החדש"
+            placeholder="...שם העובד החדש"
             className="flex-1 p-2 border border-indigo-200 dark:border-indigo-800 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
           />
-          <button
-            onClick={addEmployee}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            הוסף עובד
-          </button>
-          <button
-              onClick={handleSolve}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            {solving ? "Solving..." : "Solve"}
-          </button>
-          {solveError && <div className="text-red-500">{solveError}</div>}
-
         </div>
         <div className="space-y-4">
           {employees.map((employee, index) => (
@@ -120,6 +120,17 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
               )}
             </div>
           ))}
+        </div>
+      </div>
+      <div className="flex justify-center mt-6">
+        <div className="text-center">
+          <button
+              onClick={handleSolve}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            {solving ? "Solving..." : "Solve"}
+          </button>
+          {solveError && <div className="text-red-500 mt-2">{solveError}</div>}
         </div>
       </div>
     </div>

@@ -7,81 +7,87 @@ import ContactScreen from "./components/ContactScreen";
 import LandingPage from "./components/LandingPage";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoardsProvider } from "./components/Boards/BoardsContext";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 const App = () => {
-  const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
+    const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem("darkMode");
-    return savedMode ? JSON.parse(savedMode) : false;
-  });
-  const [currentPage, setCurrentPage] = useState("boards");
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        const savedMode = localStorage.getItem("darkMode");
+        return savedMode ? JSON.parse(savedMode) : false;
+    });
 
-  // Save dark mode preference to localStorage
-  useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
+    // Save dark mode preference to localStorage
+    useEffect(() => {
+        localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
 
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+        if (isDarkMode) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    }, [isDarkMode]);
+
+    const toggleDarkMode = () => {
+        setIsDarkMode((prev) => !prev);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+            </div>
+        );
     }
-  }, [isDarkMode]);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  const renderCurrentPage = () => {
-    if (currentPage === "boards") {
-      return (
-        <BoardsScreen
-          username={user.sub}
-          getAccessTokenSilently={getAccessTokenSilently}
-        />
-      );
-    } else if (currentPage === "employees") {
-      return (
-        <EmployeesScreen
-          username={user.sub}
-          getAccessTokenSilently={getAccessTokenSilently}
-        />
-      );
-    } else if (currentPage === "settings") {
-      return (
-        <SettingsScreen
-          isDarkMode={isDarkMode}
-          toggleDarkMode={toggleDarkMode}
-        />
-      );
-    } else if (currentPage === "contact") {
-      return <ContactScreen />;
+    if (!isAuthenticated) {
+        return <LandingPage />;
     }
-  };
 
-  if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-      </div>
+        <BoardsProvider>
+            <Router>
+                <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
+                    <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
+                        <NavBar />
+                        <div className="max-w-6xl mx-auto p-8">
+                            <Routes>
+                                <Route
+                                    path="/"
+                                    element={
+                                        <BoardsScreen
+                                            username={user.sub}
+                                            getAccessTokenSilently={getAccessTokenSilently}
+                                        />
+                                    }
+                                />
+                                <Route
+                                    path="/employees"
+                                    element={
+                                        <EmployeesScreen
+                                            username={user.sub}
+                                            getAccessTokenSilently={getAccessTokenSilently}
+                                        />
+                                    }
+                                />
+                                <Route
+                                    path="/settings"
+                                    element={
+                                        <SettingsScreen
+                                            isDarkMode={isDarkMode}
+                                            toggleDarkMode={toggleDarkMode}
+                                        />
+                                    }
+                                />
+                                <Route path="/contact" element={<ContactScreen />} />
+                                <Route path="*" element={<Navigate to="/" />} />
+                            </Routes>
+                        </div>
+                    </div>
+                </div>
+            </Router>
+        </BoardsProvider>
     );
-  }
-
-  if (!isAuthenticated) {
-    return <LandingPage />;
-  }
-
-  return (
-    <BoardsProvider>
-      <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
-        <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
-          <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-          <div className="max-w-6xl mx-auto p-8">{renderCurrentPage()}</div>
-        </div>
-      </div>
-    </BoardsProvider>
-  );
 };
 
 export default App;
