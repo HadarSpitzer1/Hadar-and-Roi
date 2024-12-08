@@ -350,21 +350,34 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   return (
       <div className="space-y-8">
         <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
+            <div className="flex items-center space-x-4">
+              <button
+                  onClick={loadTables}
+                  className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                  title="Refresh"
+              >
+                <FaSyncAlt />
+              </button>
+              <button
+                  onClick={handleSave}
+                  className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600"
+                  title="Save"
+              >
+                <FaSave />
+              </button>
+            </div>
+          <select
+              value={currentTable || ""}
+              onChange={(e) => handleTableSwitch(e.target.value)}
+              className="px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border dark:border-gray-600 rounded-lg shadow-md"
+          >
+            {Object.keys(schedules).map((tableKey) => (
+                <option key={tableKey} value={tableKey}>
+                  {tableKey}
+                </option>
+            ))}
+          </select>
           <div className="flex items-center space-x-4">
-            <button
-                onClick={loadTables}
-                className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                title="Refresh"
-            >
-              <FaSyncAlt />
-            </button>
-            <button
-                onClick={handleSave}
-                className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600"
-                title="Save"
-            >
-              <FaSave />
-            </button>
             <button
                 onClick={addNewTable}
                 className="p-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600"
@@ -387,18 +400,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
               <FaTrash />
             </button>
           </div>
-
-          <select
-              value={currentTable || ""}
-              onChange={(e) => handleTableSwitch(e.target.value)}
-              className="px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border dark:border-gray-600 rounded-lg shadow-md"
-          >
-            {Object.keys(schedules).map((tableKey) => (
-                <option key={tableKey} value={tableKey}>
-                  {tableKey}
-                </option>
-            ))}
-          </select>
         </div>
 
         {loading && <div>Loading...</div>}
