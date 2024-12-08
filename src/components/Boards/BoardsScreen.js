@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useBoards } from "./BoardsContext";
 import useSolveSchedule from "../../hooks/useSolveSchedule";
-import { FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash } from "react-icons/fa";
+import {FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash, FaFilePdf, FaFileExcel} from "react-icons/fa";
 import TableHeader from "./TableHeader";
 import TableBody from "./TableBody";
 import { fetchUserData, saveUserData } from "../../api";
+import * as XLSX from "xlsx";
 
 const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const {
@@ -329,6 +330,23 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setSchedules(updatedSchedules);
     }
   };
+  // Export to Excel function
+  const exportToExcel = () => {
+    const workbook = XLSX.utils.book_new();
+    const tableData = [ ["School", ...hours] ];
+
+    for (const school of schools) {
+      const row = [school];
+      for (const hour of hours) {
+        row.push(schedule[school]?.[hour] || "");
+      }
+      tableData.push(row);
+    }
+
+    const worksheet = XLSX.utils.aoa_to_sheet(tableData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
+    XLSX.writeFile(workbook, "schedule.xlsx");
+  };
   return (
       <div className="space-y-8">
         <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
@@ -468,6 +486,12 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
               {solving ? "Solving..." : "Solve"}
             </button>
             {solveError && <div className="text-red-500 mt-2">{solveError}</div>}
+            <button
+                onClick={exportToExcel}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mt-4 ml-4"
+            >
+              <FaFileExcel className="inline-block mr-2" /> Export to Excel
+            </button>
           </div>
         </div>
       </div>
