@@ -1,11 +1,10 @@
-// BoardScreen.js
-import React, { useEffect, useState, useRef } from "react";
-import { fetchUserData, saveUserData } from "../../api";
+import React, { useEffect, useState } from "react";
+import { useBoards } from "./BoardsContext";
+import useSolveSchedule from "../../hooks/useSolveSchedule";
 import { FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash } from "react-icons/fa";
-import axios from "axios"; // Import axios for making POST requests
 import TableHeader from "./TableHeader";
 import TableBody from "./TableBody";
-import { useBoards } from "./BoardsContext";
+import { fetchUserData, saveUserData } from "../../api";
 
 const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const {
@@ -15,7 +14,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setEmployees,
     currentTable,
     setCurrentTable,
-    employeeData, // Added employeeData from context
+    employeeData,
   } = useBoards();
 
   const [schools, setSchools] = useState([]);
@@ -23,14 +22,11 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const [schedule, setSchedule] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTableName, setNewTableName] = useState("");
-
   const [editingSchoolIndex, setEditingSchoolIndex] = useState(null);
   const [newSchoolName, setNewSchoolName] = useState("");
   const [hoveredSchoolIndex, setHoveredSchoolIndex] = useState(null);
-
   const [editingHourIndex, setEditingHourIndex] = useState(null);
   const [newHourLabel, setNewHourLabel] = useState("");
   const [hoveredHourIndex, setHoveredHourIndex] = useState(null);
@@ -57,73 +53,16 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     return unavailable_constraints;
   };
 
-  const handleSolve = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const payload = {
-        workers: employees,
-        unavailable_constraints: calculateConstraints(),
-      };
-
-      const response = await axios.post(
-          "https://us-east1-matchbox-443614.cloudfunctions.net/function-1",
-          payload
-      );
-
-      console.log("Solve Response:", response.data);
-      alert("Solve successful! Updating the table...");
-
-      // Assuming response.data.schedule is the object you posted:
-      const rawSchedule = response.data.schedule;
-      const newSchedule = {};
-
-      // Assuming your table is arranged so that:
-      // rows = hours
-      // columns = schools
-      // and that there are 7 columns (you mentioned using i%7)
-      // If 7 is not fixed, use schools.length instead of 7.
-      const numOfSchools = schools.length; // e.g., could be 7
-      const numOfHours = hours.length;
-
-      for (const i in rawSchedule) {
-        const index = parseInt(i, 10);
-        const hourIndex = Math.floor(index / numOfSchools);
-        const schoolIndex = index % numOfSchools;
-
-        // Ensure indices are within bounds of your arrays
-        if (hourIndex < numOfHours && schoolIndex < numOfSchools) {
-          const hour = hours[hourIndex];
-          const school = schools[schoolIndex];
-          const teacher = rawSchedule[i];
-
-          if (!newSchedule[school]) {
-            newSchedule[school] = {};
-          }
-          newSchedule[school][hour] = teacher;
-        }
-      }
-
-      setSchedule(newSchedule);
-
-      const updatedSchedules = {
-        ...schedules,
-        [currentTable]: {
-          ...schedules[currentTable],
-          schedule: newSchedule,
-        },
-      };
-      setSchedules(updatedSchedules);
-
-    } catch (err) {
-      console.error("Error solving constraints:", err);
-      setError("Failed to solve constraints. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
+    employees,
+    calculateConstraints,
+    schools,
+    hours,
+    currentTable,
+    schedules,
+    setSchedules,
+    setSchedule, // Pass setSchedule to update the local state
+  });
   const loadTables = async () => {
     try {
       setLoading(true);
@@ -151,6 +90,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setLoading(false);
     }
   };
+
 
   const handleTeacherSelect = (school, hour, teacher) => {
     const newSchedule = { ...schedule };
@@ -433,7 +373,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
                 className="p-2 bg-indigo-500 text-white rounded-full hover:bg-indigo-600"
                 title="Solve"
             >
-              Solve
+              {solving ? "Solving..." : "Solve"}
             </button>
           </div>
 

@@ -21,7 +21,7 @@ export const BoardsProvider = ({ children }) => {
         currentTable,
         setCurrentTable,
         employeeData,
-        setEmployeeData, // Ensure this is included in the context
+        setEmployeeData,
       }}
     >
       {children}

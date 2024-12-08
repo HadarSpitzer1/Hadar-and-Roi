@@ -7,6 +7,7 @@ import ContactScreen from "./components/ContactScreen";
 import LandingPage from "./components/LandingPage";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoardsProvider } from "./components/Boards/BoardsContext";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const App = () => {
   const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();

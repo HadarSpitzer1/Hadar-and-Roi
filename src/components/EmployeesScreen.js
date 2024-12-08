@@ -1,15 +1,45 @@
-// EmployeesScreen.js
-
-import React, { useState, useRef } from "react";
-import { useBoards } from "./Boards/BoardsContext"; // Use context for shared state
-import { saveUserData } from "../api";
-import SmallTable from "./SmallTable"; // Import the small table component
+import React, { useState } from "react";
+import { useBoards } from "./Boards/BoardsContext";
+import useSolveSchedule from "../hooks/useSolveSchedule";
+import SmallTable from "./SmallTable";
 
 const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
-  const { employees, setEmployees } = useBoards();
+  const {
+    schedules,
+    setSchedules,
+    employees,
+    setEmployees,
+    currentTable,
+    employeeData,
+  } = useBoards();
+
   const [newEmployee, setNewEmployee] = useState("");
-  const [expandedEmployee, setExpandedEmployee] = useState(null); // Tracks expanded employee
-  const itemsRef = useRef([]);
+  const [expandedEmployee, setExpandedEmployee] = useState(null);
+  const [schedule, setSchedule] = useState({}); // Add state to store the schedule
+
+  const calculateConstraints = () => {
+    const unavailable_constraints = {};
+
+    employees.forEach((employee) => {
+      const markedCells = employeeData[employee] || {};
+      unavailable_constraints[employee] = Object.keys(markedCells)
+          .filter((key) => markedCells[key])
+          .map((key) => parseInt(key, 10));
+    });
+
+    return unavailable_constraints;
+  };
+
+  const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
+    employees,
+    calculateConstraints,
+    schools: [],
+    hours: [],
+    currentTable,
+    schedules,
+    setSchedules,
+    setSchedule, // Pass setSchedule to update the local state
+  });
 
   const addEmployee = () => {
     if (newEmployee.trim()) {
@@ -19,15 +49,12 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
   };
 
   const removeEmployee = (index) => {
-    setEmployees((prevEmployees) =>
-      prevEmployees.filter((_, i) => i !== index)
-    );
+    setEmployees((prevEmployees) => prevEmployees.filter((_, i) => i !== index));
   };
 
   const toggleExpandEmployee = (index) => {
     setExpandedEmployee((prev) => (prev === index ? null : index));
   };
-
   return (
     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-lg max-w-2xl mx-auto p-6">
       <div className="space-y-6">
@@ -45,8 +72,15 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
           >
             הוסף עובד
           </button>
-        </div>
+          <button
+              onClick={handleSolve}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            {solving ? "Solving..." : "Solve"}
+          </button>
+          {solveError && <div className="text-red-500">{solveError}</div>}
 
+        </div>
         <div className="space-y-4">
           {employees.map((employee, index) => (
             <div key={index}>
