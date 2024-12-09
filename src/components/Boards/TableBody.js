@@ -1,6 +1,5 @@
-// TableBody.js
-import React from 'react';
-import { FaTrash, FaEdit } from 'react-icons/fa';
+import React from "react";
+import { FaTrash, FaEdit } from "react-icons/fa";
 
 const TableBody = ({
   hours,
@@ -8,6 +7,7 @@ const TableBody = ({
   schedule,
   conflicts,
   employees,
+  employeeData,
   hoveredHourIndex,
   setHoveredHourIndex,
   handleTeacherSelect,
@@ -36,7 +36,7 @@ const TableBody = ({
                 onChange={(e) => handleHourLabelChange(e.target.value)}
                 onBlur={() => handleHourLabelSave(rowIndex)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleHourLabelSave(rowIndex);
                   }
                 }}
@@ -69,20 +69,29 @@ const TableBody = ({
           </td>
           {schools.map((school) => {
             const isConflict = conflicts[hour] && conflicts[hour].includes(school);
+            const assignedEmployee = schedule[school]?.[hour];
+            const employeeColor = assignedEmployee
+              ? employeeData[assignedEmployee]?.color || "#ffffff"
+              : "#ffffff";
+
             return (
               <td
                 key={`${school}-${hour}`}
                 className={`p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50 ${
-                  isConflict ? 'bg-red-200 dark:bg-red-800' : ''
+                  isConflict ? "bg-red-200 dark:bg-red-800" : ""
                 }`}
+                style={{
+                  backgroundColor: isConflict ? "#FFCDD2" : employeeColor,
+                  color: assignedEmployee ? "#000000" : "inherit", // Ensure text contrast
+                }}
               >
                 <select
                   className={`w-full hover:bg-indigo-50 dark:hover:bg-indigo-900/50 border rounded-lg px-4 py-2 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                     isConflict
-                      ? 'bg-red-200 dark:bg-red-800 border-red-500 dark:border-red-500 text-gray-700 dark:text-gray-200'
-                      : 'bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-800 text-gray-700 dark:text-gray-200'
+                      ? "bg-red-200 dark:bg-red-800 border-red-500 dark:border-red-500 text-gray-700 dark:text-gray-200"
+                      : "bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-800 text-gray-700 dark:text-gray-200"
                   }`}
-                  value={schedule[school]?.[hour] || ''}
+                  value={assignedEmployee || ""}
                   onChange={(e) => handleTeacherSelect(school, hour, e.target.value)}
                 >
                   <option value="">בחר מורה</option>

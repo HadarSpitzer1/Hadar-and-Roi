@@ -43,20 +43,46 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const calculateConstraints = () => {
     const unavailable_constraints = {};
-
+  
     employees.forEach((employee) => {
       const markedCells = employeeData[employee] || {};
-      unavailable_constraints[employee] = Object.keys(markedCells)
-          .filter((key) => markedCells[key])
-          .map((key) => parseInt(key, 10));
+      const filteredKeys = Object.keys(markedCells)
+        .filter((key) => markedCells[key] === true) // Only include true (X marked)
+        .map((key) => parseInt(key, 10)) // Convert to integers
+        .filter((key) => !isNaN(key)); // Ensure valid integers only
+  
+      if (filteredKeys.length > 0) {
+        unavailable_constraints[employee] = filteredKeys;
+      }
     });
-
+  
     return unavailable_constraints;
   };
+  
+  const calculatePreferNotToConstraints = () => {
+    const preferNotToConstraints = {};
+  
+    employees.forEach((employee) => {
+      const markedCells = employeeData[employee] || {};
+      const filteredKeys = Object.keys(markedCells)
+        .filter((key) => markedCells[key] === "-") // Only include "-" (prefer not to)
+        .map((key) => parseInt(key, 10)) // Convert to integers
+        .filter((key) => !isNaN(key)); // Ensure valid integers only
+  
+      if (filteredKeys.length > 0) {
+        preferNotToConstraints[employee] = filteredKeys;
+      }
+    });
+  
+    return preferNotToConstraints;
+  };
+  
+  
 
   const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
     employees,
     calculateConstraints,
+    calculatePreferNotToConstraints,
     schools,
     hours,
     currentTable,
@@ -248,7 +274,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   };
 
   const handleAddSchool = () => {
-    const newSchoolName = `New School ${schools.length + 1}`;
+    const newSchoolName = `עמודה ${schools.length + 1}`;
     const updatedSchools = [...schools, newSchoolName];
     setSchools(updatedSchools);
 
@@ -333,20 +359,25 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   // Export to Excel function
   const exportToExcel = () => {
     const workbook = XLSX.utils.book_new();
-    const tableData = [ ["School", ...hours] ];
-
-    for (const school of schools) {
-      const row = [school];
-      for (const hour of hours) {
+    const tableData = [];
+  
+    // Add the first row with hours
+    tableData.push([" ", ...schools]);
+  
+    // Build each row based on hours
+    for (const hour of hours) {
+      const row = [hour];
+      for (const school of schools) {
         row.push(schedule[school]?.[hour] || "");
       }
       tableData.push(row);
     }
-
+  
     const worksheet = XLSX.utils.aoa_to_sheet(tableData);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
     XLSX.writeFile(workbook, "schedule.xlsx");
   };
+  
   return (
       <div className="space-y-8">
         <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
@@ -439,6 +470,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
                       editingHourIndex={editingHourIndex}
                       newHourLabel={newHourLabel}
                       handleEditHour={handleEditHour}
+                      employeeData={employeeData} // Pass employeeData here
                       handleHourLabelChange={handleHourLabelChange}
                       handleHourLabelSave={handleHourLabelSave}
                       handleDeleteHour={handleDeleteHour}

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const useSolveSchedule = ({
                               employees,
                               calculateConstraints,
+                              calculatePreferNotToConstraints,
                               schools,
                               hours,
                               currentTable,
@@ -24,6 +25,7 @@ const useSolveSchedule = ({
             const payload = {
                 workers: employees,
                 unavailable_constraints: calculateConstraints(),
+                prefer_not_to:calculatePreferNotToConstraints(),
             };
 
             const response = await axios.post(
