@@ -6,8 +6,50 @@ import SettingsScreen from "./components/SettingsScreen";
 import ContactScreen from "./components/ContactScreen";
 import LandingPage from "./components/LandingPage";
 import { useAuth0 } from "@auth0/auth0-react";
-import { BoardsProvider } from "./components/Boards/BoardsContext";
+import { BoardsProvider, useBoards } from "./components/Boards/BoardsContext";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { fetchUserData } from "./api";
+
+const AppContent = ({ username, getAccessTokenSilently }) => {
+    const { setSchedules, setEmployees, setCurrentTable } = useBoards();
+
+    // Load tables once when the app initializes
+    useState(() => {
+        const loadTables = async () => {
+            try {
+                const data = await fetchUserData(username, getAccessTokenSilently);
+                if (data) {
+                    setSchedules(data.tables || {});
+                    setEmployees(data.employees || []);
+                    const tableKeys = Object.keys(data.tables || {});
+                    if (tableKeys.length > 0) {
+                        setCurrentTable(tableKeys[0]);
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading data:", err);
+            }
+        };
+
+        loadTables();
+    }, []);
+
+    return (
+        <Routes>
+            <Route
+                path="/"
+                element={<BoardsScreen username={username} getAccessTokenSilently={getAccessTokenSilently} />}
+            />
+            <Route
+                path="/employees"
+                element={<EmployeesScreen username={username} getAccessTokenSilently={getAccessTokenSilently} />}
+            />
+            <Route path="/settings" element={<SettingsScreen />} />
+            <Route path="/contact" element={<ContactScreen />} />
+            <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+    );
+};
 
 const App = () => {
     const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -51,37 +93,7 @@ const App = () => {
                     <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
                         <NavBar />
                         <div className="max-w-6xl mx-auto p-8">
-                            <Routes>
-                                <Route
-                                    path="/"
-                                    element={
-                                        <BoardsScreen
-                                            username={user.sub}
-                                            getAccessTokenSilently={getAccessTokenSilently}
-                                        />
-                                    }
-                                />
-                                <Route
-                                    path="/employees"
-                                    element={
-                                        <EmployeesScreen
-                                            username={user.sub}
-                                            getAccessTokenSilently={getAccessTokenSilently}
-                                        />
-                                    }
-                                />
-                                <Route
-                                    path="/settings"
-                                    element={
-                                        <SettingsScreen
-                                            isDarkMode={isDarkMode}
-                                            toggleDarkMode={toggleDarkMode}
-                                        />
-                                    }
-                                />
-                                <Route path="/contact" element={<ContactScreen />} />
-                                <Route path="*" element={<Navigate to="/" />} />
-                            </Routes>
+                            <AppContent username={user.sub} getAccessTokenSilently={getAccessTokenSilently} />
                         </div>
                     </div>
                 </div>
