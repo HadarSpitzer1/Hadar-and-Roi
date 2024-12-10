@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const useSolveSchedule = ({
                               employees,
-                              calculateConstraints,
-                              calculatePreferNotToConstraints,
+                              employeeData,
                               schools,
                               hours,
                               currentTable,
@@ -17,6 +16,40 @@ const useSolveSchedule = ({
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
 
+    // Define calculateConstraints inside the hook
+    const calculateConstraints = () => {
+        const unavailableConstraints = {};
+
+        employees.forEach((employee) => {
+            const markedCells = employeeData[employee] || {};
+            unavailableConstraints[employee] = Object.keys(markedCells)
+                .filter((key) => markedCells[key])
+                .map((key) => parseInt(key, 10))
+                .filter((key) => !isNaN(key)); // Ensure valid integers only
+        });
+
+        return unavailableConstraints;
+    };
+
+    // Define calculatePreferNotToConstraints inside the hook
+    const calculatePreferNotToConstraints = () => {
+        const preferNotToConstraints = {};
+
+        employees.forEach((employee) => {
+            const markedCells = employeeData[employee] || {};
+            const filteredKeys = Object.keys(markedCells)
+                .filter((key) => markedCells[key] === "-") // Only include "-" (prefer not to)
+                .map((key) => parseInt(key, 10))
+                .filter((key) => !isNaN(key));
+
+            if (filteredKeys.length > 0) {
+                preferNotToConstraints[employee] = filteredKeys;
+            }
+        });
+
+        return preferNotToConstraints;
+    };
+
     const handleSolve = async () => {
         try {
             setLoading(true);
@@ -25,7 +58,7 @@ const useSolveSchedule = ({
             const payload = {
                 workers: employees,
                 unavailable_constraints: calculateConstraints(),
-                prefer_not_to:calculatePreferNotToConstraints(),
+                prefer_not_to: calculatePreferNotToConstraints(),
             };
 
             const response = await axios.post(
@@ -68,7 +101,7 @@ const useSolveSchedule = ({
             };
 
             setSchedules(updatedSchedules);
-            setSchedule(newSchedule); // Update the local schedule state
+            setSchedule(newSchedule);
 
             // Navigate to BoardsScreen after solving
             navigate("/");

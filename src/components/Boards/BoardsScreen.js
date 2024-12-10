@@ -43,19 +43,19 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const calculateConstraints = () => {
     const unavailable_constraints = {};
-  
+
     employees.forEach((employee) => {
       const markedCells = employeeData[employee] || {};
       const filteredKeys = Object.keys(markedCells)
         .filter((key) => markedCells[key] === true) // Only include true (X marked)
         .map((key) => parseInt(key, 10)) // Convert to integers
         .filter((key) => !isNaN(key)); // Ensure valid integers only
-  
+
       if (filteredKeys.length > 0) {
         unavailable_constraints[employee] = filteredKeys;
       }
     });
-  
+
     return unavailable_constraints;
   };
   
@@ -76,13 +76,13 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   
     return preferNotToConstraints;
   };
-  
-  
+
+
 
   const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
     employees,
+    employeeData, // Pass employeeData here
     calculateConstraints,
-    calculatePreferNotToConstraints,
     schools,
     hours,
     currentTable,
