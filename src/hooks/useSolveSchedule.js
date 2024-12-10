@@ -67,7 +67,6 @@ const useSolveSchedule = ({
             );
 
             console.log("Solve Response:", response.data);
-            alert("Solve successful! Updating the table...");
 
             const rawSchedule = response.data.schedule;
             const newSchedule = {};

@@ -142,10 +142,8 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const handleSave = async () => {
     try {
       await saveUserData(username, schedules, employees, getAccessTokenSilently);
-      alert("Data saved successfully!");
     } catch (err) {
       console.error("Error saving data:", err);
-      alert("Failed to save data. Please try again.");
     }
   };
 
@@ -167,7 +165,6 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const deleteCurrentTable = () => {
     if (!currentTable) {
-      alert("No table selected to delete!");
       return;
     }
 
@@ -195,12 +192,10 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
   const handleRenameTable = () => {
     if (!newTableName.trim()) {
-      alert("Table name cannot be empty!");
       return;
     }
 
     if (schedules[newTableName]) {
-      alert("A table with this name already exists!");
       return;
     }
 
