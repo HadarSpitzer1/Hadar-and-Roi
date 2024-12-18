@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
-import BoardsScreen from "./components/Boards/BoardsScreen";
+import BoardsScreen from "./components/Boards/BoardScreen/BoardsScreen";
 import EmployeesScreen from "./components/EmployeesScreen";
 import SettingsScreen from "./components/SettingsScreen";
 import ContactScreen from "./components/ContactScreen";

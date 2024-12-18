@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useBoards } from "./Boards/BoardsContext";
-import useSolveSchedule from "../hooks/useSolveSchedule";
+import useSolveAndExport from "../hooks/SolveAndExport";
 import SmallTable from "./SmallTable";
 import { useNavigate } from "react-router-dom";
 
@@ -42,7 +42,7 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
     return preferNotToConstraints;
   };
 
-  const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
+  const { handleSolve, loading: solving, error: solveError } = useSolveAndExport({
     employees,
     employeeData,
     schools,
@@ -52,7 +52,6 @@ const EmployeesScreen = ({ username, getAccessTokenSilently }) => {
     setSchedules,
     setSchedule,
   });
-
 
   const addEmployee = () => {
     if (newEmployee.trim()) {

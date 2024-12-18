@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useBoards } from "./BoardsContext";
-import useSolveSchedule from "../../hooks/useSolveSchedule";
-import {FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash, FaFilePdf, FaFileExcel} from "react-icons/fa";
-import TableHeader from "./TableHeader";
-import TableBody from "./TableBody";
-import { fetchUserData, saveUserData } from "../../api";
-import * as XLSX from "xlsx";
+import { useBoards } from "../BoardsContext";
+import useSolveAndExport from "../../../hooks/SolveAndExport";
+import {FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash, FaFileExcel} from "react-icons/fa";
+import TableHeader from "../TableHeader";
+import TableBody from "../TableBody";
+import { loadTables, handleSave, addNewTable, deleteCurrentTable, handleRenameTable } from "./TableActions";
 
 const BoardsScreen = ({ username, getAccessTokenSilently }) => {
   const {
@@ -79,10 +78,9 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
 
 
 
-  const { handleSolve, loading: solving, error: solveError } = useSolveSchedule({
+  const { handleSolve, exportToExcel, loading: solving, error: solveError } = useSolveAndExport({
     employees,
-    employeeData, // Pass employeeData here
-    calculateConstraints,
+    employeeData,
     schools,
     hours,
     currentTable,
@@ -90,33 +88,11 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setSchedules,
     setSchedule,
   });
-  const loadTables = async () => {
-    try {
-      setLoading(true);
-      setError(null);
 
-      const data = await fetchUserData(username, getAccessTokenSilently);
-      if (data) {
-        setSchedules(data.tables || {});
-        setEmployees(data.employees || []);
-        const tableKeys = Object.keys(data.tables || {});
-        if (tableKeys.length > 0) {
-          const firstTableKey = tableKeys[0];
-          setCurrentTable(firstTableKey);
-
-          const initialTable = data.tables[firstTableKey] || {};
-          setSchools(initialTable.schools || []);
-          setHours(initialTable.hours || []);
-          setSchedule(initialTable.schedule || {});
-        }
-      }
-    } catch (err) {
-      console.error("Error loading data:", err);
-      setError("Failed to load data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  const handleExportToExcel = () => {
+    exportToExcel(schools, hours, schedule);
   };
+
 
 
   const handleTeacherSelect = (school, hour, teacher) => {
@@ -139,76 +115,34 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
     setSchedules(updatedSchedules);
   };
 
-  const handleSave = async () => {
-    try {
-      await saveUserData(username, schedules, employees, getAccessTokenSilently);
-    } catch (err) {
-      console.error("Error saving data:", err);
-    }
+  const handleSaveClick = () => {
+    handleSave(username, schedules, employees, getAccessTokenSilently);
   };
 
-  const addNewTable = () => {
-    const newTableKey = `table${Object.keys(schedules).length + 1}`;
-    const newTable = {
-      schools: [`School ${Object.keys(schedules).length + 1}`],
-      hours: ["Hour 1", "Hour 2"],
-      schedule: {},
-    };
-
-    const updatedSchedules = { ...schedules, [newTableKey]: newTable };
-    setSchedules(updatedSchedules);
-    setCurrentTable(newTableKey);
-    setSchools(newTable.schools);
-    setHours(newTable.hours);
-    setSchedule(newTable.schedule);
+  const handleAddNewTable = () => {
+    addNewTable(schedules, setSchedules, setCurrentTable, setSchools, setHours, setSchedule);
   };
 
-  const deleteCurrentTable = () => {
-    if (!currentTable) {
-      return;
-    }
-
-    if (window.confirm(`Are you sure you want to delete the table "${currentTable}"?`)) {
-      const updatedSchedules = { ...schedules };
-      delete updatedSchedules[currentTable];
-
-      setSchedules(updatedSchedules);
-
-      const remainingTables = Object.keys(updatedSchedules);
-      setCurrentTable(remainingTables.length > 0 ? remainingTables[0] : null);
-
-      if (remainingTables.length > 0) {
-        const newCurrentTable = updatedSchedules[remainingTables[0]];
-        setSchools(newCurrentTable.schools || []);
-        setHours(newCurrentTable.hours || []);
-        setSchedule(newCurrentTable.schedule || {});
-      } else {
-        setSchools([]);
-        setHours([]);
-        setSchedule({});
-      }
-    }
+  const handleDeleteCurrentTable = () => {
+    deleteCurrentTable(currentTable, schedules, setSchedules, setCurrentTable, setSchools, setHours, setSchedule);
+  };
+  const handleLoadTables = () => {
+    loadTables(
+        setLoading,
+        setError,
+        setSchedules,
+        setEmployees,
+        setCurrentTable,
+        setSchools,
+        setHours,
+        setSchedule,
+        username,
+        getAccessTokenSilently
+    );
   };
 
-  const handleRenameTable = () => {
-    if (!newTableName.trim()) {
-      return;
-    }
-
-    if (schedules[newTableName]) {
-      return;
-    }
-
-    const updatedSchedules = { ...schedules };
-    const tableData = updatedSchedules[currentTable];
-
-    delete updatedSchedules[currentTable];
-    updatedSchedules[newTableName] = tableData;
-
-    setSchedules(updatedSchedules);
-    setCurrentTable(newTableName);
-    setIsRenaming(false);
-    setNewTableName("");
+  const handleRenameClick = () => {
+    handleRenameTable(newTableName, currentTable, schedules, setSchedules, setCurrentTable, setIsRenaming, setNewTableName);
   };
 
   const handleTableSwitch = (tableKey) => {
@@ -351,41 +285,20 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
       setSchedules(updatedSchedules);
     }
   };
-  // Export to Excel function
-  const exportToExcel = () => {
-    const workbook = XLSX.utils.book_new();
-    const tableData = [];
-  
-    // Add the first row with hours
-    tableData.push([" ", ...schools]);
-  
-    // Build each row based on hours
-    for (const hour of hours) {
-      const row = [hour];
-      for (const school of schools) {
-        row.push(schedule[school]?.[hour] || "");
-      }
-      tableData.push(row);
-    }
-  
-    const worksheet = XLSX.utils.aoa_to_sheet(tableData);
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
-    XLSX.writeFile(workbook, "schedule.xlsx");
-  };
-  
+
   return (
       <div className="space-y-8">
         <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
             <div className="flex items-center space-x-4">
               <button
-                  onClick={loadTables}
+                  onClick={handleLoadTables}
                   className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
                   title="Refresh"
               >
                 <FaSyncAlt />
               </button>
               <button
-                  onClick={handleSave}
+                  onClick={handleSaveClick}
                   className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600"
                   title="Save"
               >
@@ -405,7 +318,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
           </select>
           <div className="flex items-center space-x-4">
             <button
-                onClick={addNewTable}
+                onClick={handleAddNewTable}
                 className="p-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600"
                 title="Add New Table"
             >
@@ -419,7 +332,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
               <FaPen />
             </button>
             <button
-                onClick={deleteCurrentTable}
+                onClick={handleDeleteCurrentTable}
                 className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
                 title="Delete Table"
             >
@@ -490,7 +403,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
                 />
                 <div className="flex space-x-4">
                   <button
-                      onClick={handleRenameTable}
+                      onClick={handleRenameClick}
                       className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
                   >
                     Save
@@ -515,7 +428,7 @@ const BoardsScreen = ({ username, getAccessTokenSilently }) => {
             </button>
             {solveError && <div className="text-red-500 mt-2">{solveError}</div>}
             <button
-                onClick={exportToExcel}
+                onClick={handleExportToExcel}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mt-4 ml-4"
             >
               <FaFileExcel className="inline-block mr-2" /> Export to Excel

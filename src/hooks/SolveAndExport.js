@@ -1,22 +1,15 @@
+// src/hooks/SolveAndExport.js
+
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 
-const useSolveSchedule = ({
-                              employees,
-                              employeeData,
-                              schools,
-                              hours,
-                              currentTable,
-                              schedules,
-                              setSchedules,
-                              setSchedule,
-                          }) => {
+const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTable, schedules, setSchedules, setSchedule }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
 
-    // Define calculateConstraints inside the hook
     const calculateConstraints = () => {
         const unavailableConstraints = {};
 
@@ -25,20 +18,19 @@ const useSolveSchedule = ({
             unavailableConstraints[employee] = Object.keys(markedCells)
                 .filter((key) => markedCells[key])
                 .map((key) => parseInt(key, 10))
-                .filter((key) => !isNaN(key)); // Ensure valid integers only
+                .filter((key) => !isNaN(key));
         });
 
         return unavailableConstraints;
     };
 
-    // Define calculatePreferNotToConstraints inside the hook
     const calculatePreferNotToConstraints = () => {
         const preferNotToConstraints = {};
 
         employees.forEach((employee) => {
             const markedCells = employeeData[employee] || {};
             const filteredKeys = Object.keys(markedCells)
-                .filter((key) => markedCells[key] === "-") // Only include "-" (prefer not to)
+                .filter((key) => markedCells[key] === "-")
                 .map((key) => parseInt(key, 10))
                 .filter((key) => !isNaN(key));
 
@@ -102,7 +94,6 @@ const useSolveSchedule = ({
             setSchedules(updatedSchedules);
             setSchedule(newSchedule);
 
-            // Navigate to BoardsScreen after solving
             navigate("/");
         } catch (err) {
             console.error("Error solving constraints:", err);
@@ -112,7 +103,28 @@ const useSolveSchedule = ({
         }
     };
 
-    return { handleSolve, loading, error };
+    const exportToExcel = (schools, hours, schedule) => {
+        const workbook = XLSX.utils.book_new();
+        const tableData = [];
+
+        // Add the first row with school names
+        tableData.push([" ", ...schools]);
+
+        // Build each row based on hours
+        for (const hour of hours) {
+            const row = [hour];
+            for (const school of schools) {
+                row.push(schedule[school]?.[hour] || "");
+            }
+            tableData.push(row);
+        }
+
+        const worksheet = XLSX.utils.aoa_to_sheet(tableData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
+        XLSX.writeFile(workbook, "schedule.xlsx");
+    };
+
+    return { handleSolve, exportToExcel, loading, error };
 };
 
-export default useSolveSchedule;
+export default useSolveAndExport;
