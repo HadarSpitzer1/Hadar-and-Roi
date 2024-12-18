@@ -1,4 +1,4 @@
-import { fetchUserData, saveUserData } from "../../../api";
+import { fetchUserData, saveUserData } from "../../../../api";
 
 export const loadTables = async (
     setLoading,

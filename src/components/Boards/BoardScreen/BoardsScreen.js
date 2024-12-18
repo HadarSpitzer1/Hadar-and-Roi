@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import {useBoards} from "../BoardsContext";
 import useSolveAndExport from "../../../hooks/SolveAndExport";
 import {FaSyncAlt, FaSave, FaPlus, FaPen, FaTrash, FaFileExcel} from "react-icons/fa";
-import TableHeader from "../TableHeader";
-import TableBody from "../TableBody";
+import TableHeader from "./Table/TableHeader";
+import TableBody from "./Table/TableBody";
 import {
     loadTables,
     handleSave,
@@ -11,7 +11,7 @@ import {
     deleteCurrentTable,
     handleRenameTable,
     handleTableSwitch
-} from "./TableActions";
+} from "./Table/TableActions";
 import {
     handleTeacherSelect,
     handleAddSchool,
@@ -24,7 +24,7 @@ import {
     handleDeleteSchool,
     handleEditSchool,
     handleSchoolNameChange
-} from "./EditCells";
+} from "./Table/EditCells";
 
 const BoardsScreen = ({username, getAccessTokenSilently}) => {
     const {
