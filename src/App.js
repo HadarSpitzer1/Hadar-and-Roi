@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import BoardsScreen from "./components/Boards/BoardScreen/BoardsScreen";
-import EmployeesScreen from "./components/EmployeesScreen";
+import EmployeesScreen from "./components/Boards/EmployeesScreen/EmployeesScreen";
 import SettingsScreen from "./components/SettingsScreen";
 import ContactScreen from "./components/ContactScreen";
 import LandingPage from "./components/LandingPage";
@@ -42,7 +42,7 @@ const AppContent = ({ username, getAccessTokenSilently }) => {
             />
             <Route
                 path="/employees"
-                element={<EmployeesScreen username={username} getAccessTokenSilently={getAccessTokenSilently} />}
+                element={<EmployeesScreen/>}
             />
             <Route path="/settings" element={<SettingsScreen />} />
             <Route path="/contact" element={<ContactScreen />} />
