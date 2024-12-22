@@ -9,17 +9,20 @@ export const loadTables = async (
     setSchools,
     setHours,
     setSchedule,
+    setEmployeeData,
     username,
     getAccessTokenSilently
 ) => {
     try {
         setLoading(true);
         setError(null);
-
+        console.log('TRYING TO PEINT ACCESS STUFF')
+        console.log(getAccessTokenSilently)
         const data = await fetchUserData(username, getAccessTokenSilently);
         if (data) {
             setSchedules(data.tables || {});
             setEmployees(data.employees || []);
+            setEmployeeData(data.employeeData || {});
             const tableKeys = Object.keys(data.tables || {});
             if (tableKeys.length > 0) {
                 const firstTableKey = tableKeys[0];
@@ -39,9 +42,9 @@ export const loadTables = async (
     }
 };
 
-export const handleSave = async (username, schedules, employees, getAccessTokenSilently) => {
+export const handleSave = async (username, schedules, employees, getAccessTokenSilently, employeeData) => {
     try {
-        await saveUserData(username, schedules, employees, getAccessTokenSilently);
+        await saveUserData(username, schedules, employees, getAccessTokenSilently,employeeData);
     } catch (err) {
         console.error("Error saving data:", err);
     }

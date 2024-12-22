@@ -1,6 +1,6 @@
 // components/SettingsScreen.js
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 
 const SettingsScreen = ({ isDarkMode, toggleDarkMode }) => {

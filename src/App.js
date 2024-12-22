@@ -10,7 +10,7 @@ import { BoardsProvider, useBoards } from "./components/Boards/BoardsContext";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { fetchUserData } from "./api";
 
-const AppContent = ({ username, getAccessTokenSilently }) => {
+const AppContent = ({ username, getAccessTokenSilently ,isDarkMode, toggleDarkMode}) => {
     const { setSchedules, setEmployees, setCurrentTable } = useBoards();
 
     // Load tables once when the app initializes
@@ -38,14 +38,14 @@ const AppContent = ({ username, getAccessTokenSilently }) => {
         <Routes>
             <Route
                 path="/"
-                element={<BoardsScreen username={username} getAccessTokenSilently={getAccessTokenSilently} />}
+                element={<BoardsScreen username={username} isDarkMode={isDarkMode} getAccessTokenSilently={getAccessTokenSilently} />}
             />
             <Route
                 path="/employees"
                 element={<EmployeesScreen/>}
             />
-            <Route path="/settings" element={<SettingsScreen />} />
-            <Route path="/contact" element={<ContactScreen />} />
+            <Route path="/settings" element={<SettingsScreen isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode}/>} />
+            <Route path="/contact" element={<ContactScreen isDarkMode={isDarkMode}/>} />
             <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
@@ -59,7 +59,6 @@ const App = () => {
         return savedMode ? JSON.parse(savedMode) : false;
     });
 
-    // Save dark mode preference to localStorage
     useEffect(() => {
         localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
 
@@ -93,7 +92,7 @@ const App = () => {
                     <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
                         <NavBar />
                         <div className="max-w-6xl mx-auto p-8">
-                            <AppContent username={user.sub} getAccessTokenSilently={getAccessTokenSilently} />
+                            <AppContent username={user.sub} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} getAccessTokenSilently={getAccessTokenSilently} />
                         </div>
                     </div>
                 </div>

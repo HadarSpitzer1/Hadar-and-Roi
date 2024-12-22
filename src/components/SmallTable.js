@@ -33,12 +33,12 @@ const SmallTable = ({ employeeName }) => {
     let updatedState;
 
     // Toggle cell state
-    if (currentState === true) {
+    if (currentState === "x") {
       updatedState = "-"; // Move from X to warning state
     } else if (currentState === "-") {
       updatedState = false; // Move from warning to unmarked
     } else {
-      updatedState = true; // Move from unmarked to X
+      updatedState = "x"; // Move from unmarked to X
     }
 
     const updatedMarkedCells = {
@@ -100,7 +100,7 @@ const SmallTable = ({ employeeName }) => {
                   className={`p-3 text-center border-b border-indigo-200 dark:border-indigo-800 cursor-pointer transition-colors`}
                   style={{
                     backgroundColor:
-                      cellState === true
+                      cellState === "x"
                         ? "#FFCDD2" // Red for X
                         : cellState === "-"
                         ? "#FFF4C4" // Yellow/Orange for warning
@@ -108,7 +108,7 @@ const SmallTable = ({ employeeName }) => {
                     color: cellState ? "#000000" : "inherit", // Ensure text visibility for marked states
                   }}
                 >
-                  {cellState === true ? "X" : cellState === "-" ? "-" : ""}
+                  {cellState === "x" ? "X" : cellState === "-" ? "-" : ""}
                 </td>
               );
             })}

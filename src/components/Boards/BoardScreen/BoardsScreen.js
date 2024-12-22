@@ -35,6 +35,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         currentTable,
         setCurrentTable,
         employeeData,
+        setEmployeeData,
     } = useBoards();
 
     const [schools, setSchools] = useState([]);
@@ -75,7 +76,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
     };
 
     const handleSaveClick = () => {
-        handleSave(username, schedules, employees, getAccessTokenSilently);
+        handleSave(username, schedules, employees, getAccessTokenSilently,employeeData);
     };
     const handleTableSwitchClick = (tableKey) => {
         handleTableSwitch(tableKey, schedules, setCurrentTable, setSchools, setHours, setSchedule);
@@ -103,6 +104,8 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         deleteCurrentTable(currentTable, schedules, setSchedules, setCurrentTable, setSchools, setHours, setSchedule);
     };
     const handleLoadTables = () => {
+        console.log(" IAM TRYING TO PRINT GETACCESSTOKEN")
+        console.log(getAccessTokenSilently)
         loadTables(
             setLoading,
             setError,
@@ -112,6 +115,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
             setSchools,
             setHours,
             setSchedule,
+            setEmployeeData,
             username,
             getAccessTokenSilently
         );

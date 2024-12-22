@@ -255,6 +255,7 @@ const App = () => {
     }, [isDarkMode]);
 
     const toggleDarkMode = () => {
+        console.log("Toggling dark mode");
         setIsDarkMode(prev => !prev);
     };
 
@@ -273,10 +274,8 @@ const App = () => {
                 return <EmployeesScreen />;
             case 'settings':
                 return (
-                    <SettingsScreen 
-                        isDarkMode={isDarkMode}
-                        toggleDarkMode={toggleDarkMode}
-                    />
+                    <SettingsScreen isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+                    
                 );
             case 'contact':
                 return <ContactScreen />;

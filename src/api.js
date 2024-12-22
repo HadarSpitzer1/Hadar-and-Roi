@@ -4,14 +4,16 @@ const API_URL = "https://ts1vtu17l7.execute-api.us-east-1.amazonaws.com/api-gate
 const GOOGLE_FUNCTION_URL = "https://us-east1-matchbox-443614.cloudfunctions.net/function-1"; // Your Google Cloud Function URL.
 
 // Save user data to DynamoDB
-export const saveUserData = async (userId, tables, employees, getAccessTokenSilently) => {
+export const saveUserData = async (userId, tables, employees, getAccessTokenSilently, employeeData) => {
     try {
+        console.log("Data being sent:", { tables, employees, employeeData });
         const token = await getAccessTokenSilently();
+        
         await axios.post(
             `${API_URL}/save`,
             {
                 userId: userId,
-                data: { tables, employees },
+                data: { tables, employees, employeeData },
             },
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -26,7 +28,7 @@ export const fetchUserData = async (username, getAccessTokenSilently) => {
         const token = await getAccessTokenSilently();
         const response = await axios.get(`${API_URL}/load`, {
             headers: { Authorization: `Bearer ${token}` },
-            params: { userId: username, dataType: "Map" }, // Pass userId and dataType as query parameters
+            params: { userId: username, dataType: "Map" },
         });
         return response.data;
     } catch (error) {
