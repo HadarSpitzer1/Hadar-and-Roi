@@ -1,11 +1,19 @@
-export const addEmployee = (newEmployee, setEmployees, setNewEmployee) => {
-    if (newEmployee.trim()) {
-        setEmployees((prevEmployees) => [...prevEmployees, newEmployee.trim()]);
+import axios from "axios";
+import {createEmployeeData} from "../../../api";
+const API_URL = "https://ts1vtu17l7.execute-api.us-east-1.amazonaws.com/api-gateway-stage1";
+export const addEmployee = async (newEmployee, setEmployees, setNewEmployee, tableName, getAccessTokenSilently) => {
+    try {
+        const savedEmployee = await createEmployeeData(newEmployee, tableName, getAccessTokenSilently);
+        console.log(savedEmployee.employeeCode);
+        setEmployees((prevEmployees) => [...prevEmployees, savedEmployee.name]);
         setNewEmployee("");
-    }
-};
 
-export const removeEmployee = (index, setEmployees) => {
+        console.log("Employee added successfully:", savedEmployee);
+    } catch (error) {
+        console.error("Failed to add employee:", error);
+        alert("Failed to add employee. Please try again.");
+    }
+};export const removeEmployee = (index, setEmployees) => {
     setEmployees((prevEmployees) => prevEmployees.filter((_, i) => i !== index));
 };
 

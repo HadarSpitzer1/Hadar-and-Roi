@@ -10,7 +10,7 @@ import {
   getEmployeeColor,
 } from "./EmployeeActions";
 
-const EmployeesScreen = () => {
+const EmployeesScreen = ({ getAccessTokenSilently }) => {
   const {
     schedules,
     setSchedules,
@@ -24,11 +24,12 @@ const EmployeesScreen = () => {
   const [expandedEmployee, setExpandedEmployee] = useState(null);
   const [schedule, setSchedule] = useState({});
 
-  const navigate = useNavigate(); // Hook for navigation
 
   const schools = schedules[currentTable]?.schools || [];
   const hours = schedules[currentTable]?.hours || [];
-
+  const handleAddEmployee = () => {
+    addEmployee(newEmployee, setEmployees, setNewEmployee, currentTable,getAccessTokenSilently);
+  };
   const { handleSolve, loading: solving, error: solveError } = useSolveAndExport({
     employees,
     employeeData,
@@ -45,7 +46,7 @@ const EmployeesScreen = () => {
         <div className="space-y-6">
           <div className="flex gap-4">
             <button
-                onClick={() => addEmployee(newEmployee, setEmployees, setNewEmployee)}
+                onClick={handleAddEmployee}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
               הוסף עובד

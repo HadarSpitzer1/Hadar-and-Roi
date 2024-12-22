@@ -21,8 +21,6 @@ export const saveUserData = async (userId, tables, employees, getAccessTokenSile
         console.error("Error saving user data:", error);
     }
 };
-
-// Fetch user data from DynamoDB
 export const fetchUserData = async (username, getAccessTokenSilently) => {
     try {
         const token = await getAccessTokenSilently();
@@ -34,5 +32,32 @@ export const fetchUserData = async (username, getAccessTokenSilently) => {
     } catch (error) {
         console.error("Error fetching user data:", error);
         return null;
+    }
+};
+export const createEmployeeData = async (newEmployee,tableName, getAccessTokenSilently) => {
+    if (!newEmployee.trim()) {
+        throw new Error("Name is required");
+    }
+    try {
+        console.log("Calling API with:", { newEmployee });
+
+        // Fetch the token
+        const token = await getAccessTokenSilently();
+
+        // Make the API request
+        const response = await axios.post(
+            `${API_URL}/employeeCode`, // Replace with your actual endpoint path
+            { name: newEmployee }, // Request payload
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Pass the token in headers
+                },
+            }
+        );
+        console.log("API response:", response.data);
+        return response.data.employee;
+    } catch (error) {
+        console.error("Failed to create employee:", error);
+        throw error;
     }
 };
