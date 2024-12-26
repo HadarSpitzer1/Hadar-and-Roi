@@ -1,9 +1,9 @@
 import axios from "axios";
 import {createEmployeeData} from "../../../api";
 const API_URL = "https://ts1vtu17l7.execute-api.us-east-1.amazonaws.com/api-gateway-stage1";
-export const addEmployee = async (newEmployee, setEmployees, setNewEmployee, tableName, getAccessTokenSilently) => {
+export const addEmployee = async (rootUsername, newEmployee, setEmployees, setNewEmployee, tableName, getAccessTokenSilently) => {
     try {
-        const savedEmployee = await createEmployeeData(newEmployee, tableName, getAccessTokenSilently);
+        const savedEmployee = await createEmployeeData(rootUsername, newEmployee, tableName, getAccessTokenSilently);
         console.log(savedEmployee.employeeCode);
         setEmployees((prevEmployees) => [...prevEmployees, savedEmployee.name]);
         setNewEmployee("");

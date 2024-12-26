@@ -34,12 +34,12 @@ export const fetchUserData = async (username, getAccessTokenSilently) => {
         return null;
     }
 };
-export const createEmployeeData = async (newEmployee,tableName, getAccessTokenSilently) => {
+export const createEmployeeData = async (rootUsername, newEmployee, tableName, getAccessTokenSilently) => {
     if (!newEmployee.trim()) {
         throw new Error("Name is required");
     }
     try {
-        console.log("Calling API with:", { newEmployee });
+        console.log("Calling API with:", { rootUsername,newEmployee, tableName });
 
         // Fetch the token
         const token = await getAccessTokenSilently();
@@ -47,7 +47,7 @@ export const createEmployeeData = async (newEmployee,tableName, getAccessTokenSi
         // Make the API request
         const response = await axios.post(
             `${API_URL}/employeeCode`, // Replace with your actual endpoint path
-            { name: newEmployee }, // Request payload
+            { name: newEmployee, tableName: tableName, rootUsername: rootUsername}, // Include tableName in the payload
             {
                 headers: {
                     Authorization: `Bearer ${token}`, // Pass the token in headers

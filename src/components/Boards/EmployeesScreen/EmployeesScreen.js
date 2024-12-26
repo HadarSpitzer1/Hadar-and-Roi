@@ -10,7 +10,7 @@ import {
   getEmployeeColor,
 } from "./EmployeeActions";
 
-const EmployeesScreen = ({ getAccessTokenSilently }) => {
+const EmployeesScreen = ({username, getAccessTokenSilently }) => {
   const {
     schedules,
     setSchedules,
@@ -28,7 +28,7 @@ const EmployeesScreen = ({ getAccessTokenSilently }) => {
   const schools = schedules[currentTable]?.schools || [];
   const hours = schedules[currentTable]?.hours || [];
   const handleAddEmployee = () => {
-    addEmployee(newEmployee, setEmployees, setNewEmployee, currentTable,getAccessTokenSilently);
+    addEmployee(username, newEmployee, setEmployees, setNewEmployee, currentTable,getAccessTokenSilently);
   };
   const { handleSolve, loading: solving, error: solveError } = useSolveAndExport({
     employees,

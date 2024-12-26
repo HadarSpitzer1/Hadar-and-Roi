@@ -40,7 +40,7 @@ const AppContent = ({ username, getAccessTokenSilently ,isDarkMode, toggleDarkMo
                 path="/"
                 element={<BoardsScreen username={username} isDarkMode={isDarkMode} getAccessTokenSilently={getAccessTokenSilently} />}
             />
-            <Route path="/employees" element={<EmployeesScreen getAccessTokenSilently={getAccessTokenSilently}/>} />
+            <Route path="/employees" element={<EmployeesScreen username={username} getAccessTokenSilently={getAccessTokenSilently}/>} />
             <Route path="/settings" element={<SettingsScreen isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode}/>} />
             <Route path="/contact" element={<ContactScreen isDarkMode={isDarkMode}/>} />
             <Route path="*" element={<Navigate to="/" />} />
