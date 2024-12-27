@@ -32,6 +32,8 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         setSchedules,
         employees,
         setEmployees,
+        managers,
+        setManagers,
         currentTable,
         setCurrentTable,
         employeeData,
@@ -69,6 +71,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         schedules,
         setSchedules,
         setSchedule,
+        managers,
     });
 
     const handleExportToExcel = () => {
@@ -258,6 +261,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                                 handleDeleteHour={handleDeleteHourClick}
                                 hoveredHourIndex={hoveredHourIndex}
                                 setHoveredHourIndex={setHoveredHourIndex}
+                                handleAddRow={handleAddHourClick}
                             />
                         </table>
                     </div>

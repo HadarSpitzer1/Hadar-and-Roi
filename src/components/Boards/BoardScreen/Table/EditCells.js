@@ -35,7 +35,7 @@ export const handleAddSchool = (schools, setSchools, schedules, setSchedules, cu
 };
 
 export const handleAddHour = (hours, setHours, schedules, setSchedules, currentTable) => {
-    const newHourName = `Hour ${hours.length + 1}`;
+    const newHourName = `שורה  ${hours.length + 1}`;
     const updatedHours = [...hours, newHourName];
     setHours(updatedHours);
 

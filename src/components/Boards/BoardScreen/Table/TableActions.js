@@ -50,10 +50,10 @@ export const handleSave = async (username, schedules, employees, getAccessTokenS
     }
 };
 export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools, setHours, setSchedule) => {
-    const newTableKey = `table${Object.keys(schedules).length + 1}`;
+    const newTableKey = `טבלה ${Object.keys(schedules).length + 1}`;
     const newTable = {
-        schools: [`School ${Object.keys(schedules).length + 1}`],
-        hours: ["Hour 1", "Hour 2"],
+        schools: [` עמודה ${Object.keys(schedules).length + 1}`],
+        hours: ["שורה 1", "שורה 2"],
         schedule: {},
     };
 

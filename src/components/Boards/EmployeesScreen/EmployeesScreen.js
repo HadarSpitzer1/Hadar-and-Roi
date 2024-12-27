@@ -16,6 +16,8 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
     setSchedules,
     employees,
     setEmployees,
+    managers,
+    setManagers,
     currentTable,
     employeeData,
   } = useBoards();
@@ -23,6 +25,7 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
   const [newEmployee, setNewEmployee] = useState("");
   const [expandedEmployee, setExpandedEmployee] = useState(null);
   const [schedule, setSchedule] = useState({});
+  const [promotedEmployees, setPromotedEmployees] = useState([]); // Fix: State for promoted employees
 
 
   const schools = schedules[currentTable]?.schools || [];
@@ -30,6 +33,20 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
   const handleAddEmployee = () => {
     addEmployee(username, newEmployee, setEmployees, setNewEmployee, currentTable,getAccessTokenSilently);
   };
+
+  const handlePromoteToManager = (employee) => {
+    if (managers.includes(employee)) {
+      // If already a manager, remove from managers and promotedEmployees
+      setManagers(managers.filter((manager) => manager !== employee));
+      setPromotedEmployees(promotedEmployees.filter((promoted) => promoted !== employee));
+    } else {
+      // Otherwise, promote the employee
+      setManagers([...managers, employee]);
+      setPromotedEmployees([...promotedEmployees, employee]);
+    }
+  };
+
+
   const { handleSolve, loading: solving, error: solveError } = useSolveAndExport({
     employees,
     employeeData,
@@ -39,6 +56,7 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
     schedules,
     setSchedules,
     setSchedule,
+    managers,
   });
 
   return (
@@ -63,32 +81,57 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
             {employees.map((employee, index) => (
                 <div key={index}>
                   <div
-                      className={`flex justify-between items-center p-3 rounded-lg transition-all ${getEmployeeColor(employee)}`}
+                      className={`flex justify-between items-center p-3 rounded-lg transition-all ${getEmployeeColor(
+                          employee
+                      )}`}
                   >
-                    <button
-                        onClick={() => removeEmployee(index, setEmployees)}
-                        className="px-3 py-1 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
-                    >
-                      הסר
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                          onClick={() => removeEmployee(index, setEmployees)}
+                          className="px-3 py-1 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors"
+                      >
+                        הסר
+                      </button>
+                      <button
+                          onClick={() => handlePromoteToManager(employee)}
+                          className={`px-3 py-1 text-white rounded-lg transition-colors ${
+                              promotedEmployees.includes(employee)
+                                  ? "bg-green-500 hover:bg-green-600"
+                                  : "bg-gray-500 hover:bg-gray-600"
+                          }`}
+                      >
+                        אחמ״ש
+                      </button>
+                    </div>
                     <span
                         className="cursor-pointer text-gray-700 dark:text-gray-200 hover:underline"
                         onClick={() => toggleExpandEmployee(index, setExpandedEmployee)}
                     >
-                  {employee}
-                </span>
+    {employee}
+  </span>
                   </div>
+
 
                   {expandedEmployee === index && (
                       <div
                           className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow-inner transition-all"
-                          style={{ maxHeight: "300px", overflow: "hidden" }}
+                          style={{ overflow: "hidden" }}
                       >
                         <SmallTable employeeName={employee} />
                       </div>
                   )}
                 </div>
             ))}
+          </div>
+          <div className="mt-4" dir="rtl">
+            <h3 className="text-lg rounded-lg font-bold text-gray-800 dark:text-gray-200">
+              אחמ״שים
+            </h3>
+            <ul className="list-disc list-inside text-gray-700 dark:text-gray-200">
+              {managers.map((manager, index) => (
+                  <li key={index}>{manager}</li>
+              ))}
+            </ul>
           </div>
         </div>
         <div className="flex justify-center mt-6">
@@ -105,5 +148,4 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
       </div>
   );
 };
-
 export default EmployeesScreen;

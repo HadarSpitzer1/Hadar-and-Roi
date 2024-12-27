@@ -61,29 +61,28 @@ const SmallTable = ({ employeeName }) => {
     >
       {/* Header */}
       <thead>
-        <tr style={{ backgroundColor: employeeColor }} className="text-gray-700 dark:text-gray-200">
-          <th className="p-3 text-center font-medium border-b border-indigo-200 dark:border-indigo-800">
-            שעות
-          </th>
-          {schools.map((school, index) => (
+      <tr style={{ backgroundColor: employeeColor }} className="text-gray-700 dark:text-gray-200">
+        <th className="p-3 text-center font-medium border-b border-r border-indigo-200 dark:border-indigo-800">
+          שעות
+        </th>
+        {schools.map((school, index) => (
             <th
-              key={index}
-              className="p-3 text-center font-medium border-b border-indigo-200 dark:border-indigo-800"
+                key={index}
+                className="p-3 text-center font-medium border-b border-r border-indigo-200 dark:border-indigo-800"
             >
               {school}
             </th>
-          ))}
-        </tr>
+        ))}
+      </tr>
       </thead>
 
-      {/* Body */}
       <tbody>
-        {hours.map((hour, rowIndex) => (
+      {hours.map((hour, rowIndex) => (
           <tr key={rowIndex} className="hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors">
             {/* Row Header */}
             <td
-              className="p-3 text-center font-medium border-b border-indigo-200 dark:border-indigo-800"
-              style={{ backgroundColor: employeeColor }}
+                className="p-3 text-center font-medium border-b border-r border-indigo-200 dark:border-indigo-800"
+                style={{ backgroundColor: employeeColor }}
             >
               {hour}
             </td>
@@ -94,26 +93,26 @@ const SmallTable = ({ employeeName }) => {
               const cellState = markedCells[cellKey]; // true (X), "-" (warning), or undefined (unmarked)
 
               return (
-                <td
-                  key={colIndex}
-                  onClick={() => toggleCell(rowIndex, colIndex)}
-                  className={`p-3 text-center border-b border-indigo-200 dark:border-indigo-800 cursor-pointer transition-colors`}
-                  style={{
-                    backgroundColor:
-                      cellState === "x"
-                        ? "#FFCDD2" // Red for X
-                        : cellState === "-"
-                        ? "#FFF4C4" // Yellow/Orange for warning
-                        : "transparent", // Unmarked cells inherit table background
-                    color: cellState ? "#000000" : "inherit", // Ensure text visibility for marked states
-                  }}
-                >
-                  {cellState === "x" ? "X" : cellState === "-" ? "-" : ""}
-                </td>
+                  <td
+                      key={colIndex}
+                      onClick={() => toggleCell(rowIndex, colIndex)}
+                      className={`p-3 text-center border-b border-r border-indigo-200 dark:border-indigo-800 cursor-pointer transition-colors`}
+                      style={{
+                        backgroundColor:
+                            cellState === "x"
+                                ? "#FFCDD2" // Red for X
+                                : cellState === "-"
+                                    ? "#FFF4C4" // Yellow/Orange for warning
+                                    : "transparent", // Unmarked cells inherit table background
+                        color: cellState ? "#000000" : "inherit", // Ensure text visibility for marked states
+                      }}
+                  >
+                    {cellState === "x" ? "X" : cellState === "-" ? "-" : ""}
+                  </td>
               );
             })}
           </tr>
-        ))}
+      ))}
       </tbody>
     </table>
   );

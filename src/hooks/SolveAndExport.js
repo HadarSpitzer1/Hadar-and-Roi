@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 
-const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTable, schedules, setSchedules, setSchedule }) => {
+const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTable, schedules, setSchedules, setSchedule, managers }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
@@ -48,11 +48,14 @@ const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTab
             setError(null);
 
             const payload = {
+                user: "vizo",
                 workers: employees,
                 unavailable_constraints: calculateConstraints(),
                 prefer_not_to: calculatePreferNotToConstraints(),
             };
-
+            if (managers && managers.length > 0) {
+                payload.managers = managers;
+            }
             const response = await axios.post(
                 "https://us-east1-matchbox-443614.cloudfunctions.net/function-1",
                 payload

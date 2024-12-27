@@ -26,15 +26,15 @@ const TableHeader = ({
       >
         {/* Add new row button */}
         <th className="p-3 text-center rounded-tl-xl">
-          <button
-            onClick={handleAddRow}
-            className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${
-              hoveredHourIndex === 0 ? "opacity-100" : "opacity-75"
-            }`}
-            title="Add Row"
-          >
-            ＋
-          </button>
+        {/*  <button*/}
+        {/*    onClick={handleAddRow}*/}
+        {/*    className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${*/}
+        {/*      hoveredHourIndex === 0 ? "opacity-100" : "opacity-75"*/}
+        {/*    }`}*/}
+        {/*    title="Add Row"*/}
+        {/*  >*/}
+        {/*    ＋*/}
+        {/*  </button>*/}
         </th>
 
         {/* Render columns for each school */}
