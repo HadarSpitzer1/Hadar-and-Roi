@@ -17,7 +17,8 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
     employees,
     setEmployees,
     managers,
-    setManagers,
+    addManager,
+    removeManager,
     currentTable,
     employeeData,
   } = useBoards();
@@ -36,15 +37,16 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
 
   const handlePromoteToManager = (employee) => {
     if (managers.includes(employee)) {
-      // If already a manager, remove from managers and promotedEmployees
-      setManagers(managers.filter((manager) => manager !== employee));
-      setPromotedEmployees(promotedEmployees.filter((promoted) => promoted !== employee));
+      // Remove from managers
+      removeManager(employee);
+      setPromotedEmployees((prev) => prev.filter((promoted) => promoted !== employee));
     } else {
-      // Otherwise, promote the employee
-      setManagers([...managers, employee]);
-      setPromotedEmployees([...promotedEmployees, employee]);
+      // Add to managers
+      addManager(employee);
+      setPromotedEmployees((prev) => [...prev, employee]);
     }
   };
+
 
 
   const { handleSolve, loading: solving, error: solveError } = useSolveAndExport({
@@ -95,7 +97,7 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
                       <button
                           onClick={() => handlePromoteToManager(employee)}
                           className={`px-3 py-1 text-white rounded-lg transition-colors ${
-                              promotedEmployees.includes(employee)
+                              managers.includes(employee)
                                   ? "bg-green-500 hover:bg-green-600"
                                   : "bg-gray-500 hover:bg-gray-600"
                           }`}
@@ -107,16 +109,11 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
                         className="cursor-pointer text-gray-700 dark:text-gray-200 hover:underline"
                         onClick={() => toggleExpandEmployee(index, setExpandedEmployee)}
                     >
-    {employee}
-  </span>
+                                    {employee}
+                                </span>
                   </div>
-
-
                   {expandedEmployee === index && (
-                      <div
-                          className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow-inner transition-all"
-                          style={{ overflow: "hidden" }}
-                      >
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow-inner transition-all">
                         <SmallTable employeeName={employee} />
                       </div>
                   )}

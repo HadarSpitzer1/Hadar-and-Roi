@@ -4,11 +4,18 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
+import { useBoards } from '../components/Boards/BoardsContext'; // Update the path as necessary
 
 const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTable, schedules, setSchedules, setSchedule, managers }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
+    // const { period } = useBoards(); // Load period from BoardsContext
+    const [period, setPeriod] = useState(() => {
+        const savedPeriod = localStorage.getItem("period");
+        console.log(savedPeriod);
+        return savedPeriod || "שבועי"; // Default to "שבועי"
+    });
 
     const calculateConstraints = () => {
         const unavailableConstraints = {};
@@ -47,8 +54,9 @@ const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTab
             setLoading(true);
             setError(null);
 
+            const organization = period.trim() === "שבועי" ? "security" : "vizo";
             const payload = {
-                user: "vizo",
+                user: organization,
                 workers: employees,
                 unavailable_constraints: calculateConstraints(),
                 prefer_not_to: calculatePreferNotToConstraints(),

@@ -10,11 +10,10 @@ import { BoardsProvider, useBoards } from "./components/Boards/BoardsContext";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { fetchUserData } from "./api";
 
-const AppContent = ({ username, getAccessTokenSilently ,isDarkMode, toggleDarkMode}) => {
+const AppContent = ({ username, getAccessTokenSilently, isDarkMode, toggleDarkMode, period, togglePeriod }) => {
     const { setSchedules, setEmployees, setCurrentTable } = useBoards();
 
-    // Load tables once when the app initializes
-    useState(() => {
+    useEffect(() => {
         const loadTables = async () => {
             try {
                 const data = await fetchUserData(username, getAccessTokenSilently);
@@ -32,7 +31,7 @@ const AppContent = ({ username, getAccessTokenSilently ,isDarkMode, toggleDarkMo
         };
 
         loadTables();
-    }, []);
+    }, [username, getAccessTokenSilently, setSchedules, setEmployees, setCurrentTable]);
 
     return (
         <Routes>
@@ -40,9 +39,12 @@ const AppContent = ({ username, getAccessTokenSilently ,isDarkMode, toggleDarkMo
                 path="/"
                 element={<BoardsScreen username={username} isDarkMode={isDarkMode} getAccessTokenSilently={getAccessTokenSilently} />}
             />
-            <Route path="/employees" element={<EmployeesScreen username={username} getAccessTokenSilently={getAccessTokenSilently}/>} />
-            <Route path="/settings" element={<SettingsScreen isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode}/>} />
-            <Route path="/contact" element={<ContactScreen isDarkMode={isDarkMode}/>} />
+            <Route path="/employees" element={<EmployeesScreen username={username} getAccessTokenSilently={getAccessTokenSilently} />} />
+            <Route
+                path="/settings"
+                element={<SettingsScreen isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} period={period} togglePeriod={togglePeriod} />}
+            />
+            <Route path="/contact" element={<ContactScreen isDarkMode={isDarkMode} />} />
             <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
@@ -56,6 +58,11 @@ const App = () => {
         return savedMode ? JSON.parse(savedMode) : false;
     });
 
+    const [period, setPeriod] = useState(() => {
+        const savedPeriod = localStorage.getItem("period");
+        return savedPeriod || "שבועי"; // Default to שבועי
+    });
+
     useEffect(() => {
         localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
 
@@ -66,8 +73,16 @@ const App = () => {
         }
     }, [isDarkMode]);
 
+    useEffect(() => {
+        localStorage.setItem("period", period);
+    }, [period]);
+
     const toggleDarkMode = () => {
         setIsDarkMode((prev) => !prev);
+    };
+
+    const togglePeriod = () => {
+        setPeriod((prev) => (prev === "שבועי" ? "חודשי" : "שבועי"));
     };
 
     if (isLoading) {
@@ -89,7 +104,14 @@ const App = () => {
                     <div className="bg-indigo-50/50 dark:bg-gray-950 min-h-screen transition-colors duration-200">
                         <NavBar />
                         <div className="max-w-6xl mx-auto p-8">
-                            <AppContent username={user.sub} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} getAccessTokenSilently={getAccessTokenSilently} />
+                            <AppContent
+                                username={user.sub}
+                                isDarkMode={isDarkMode}
+                                toggleDarkMode={toggleDarkMode}
+                                period={period}
+                                togglePeriod={togglePeriod}
+                                getAccessTokenSilently={getAccessTokenSilently}
+                            />
                         </div>
                     </div>
                 </div>
