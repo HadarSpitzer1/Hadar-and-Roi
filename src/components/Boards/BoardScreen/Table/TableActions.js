@@ -145,3 +145,24 @@ export const handleTableSwitch = (tableKey, schedules, setCurrentTable, setSchoo
     setSchedule(tableData.schedule || {});
 };
 
+const TableActionButton = ({ onClick, icon, label, color = "indigo" }) => {
+  const colorClasses = {
+    indigo: "from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:ring-indigo-500",
+    red: "from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 focus:ring-rose-500",
+    green: "from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:ring-green-500",
+    blue: "from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 focus:ring-blue-500",
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r ${colorClasses[color]} rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2`}
+    >
+      <span className="relative flex items-center">
+        {icon}
+        {label}
+      </span>
+    </button>
+  );
+};
+

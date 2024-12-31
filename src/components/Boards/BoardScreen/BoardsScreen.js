@@ -173,17 +173,36 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={handleLoadTables}
-                        className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                        title="Refresh"
+                        className="group relative inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-md hover:from-blue-600 hover:to-cyan-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
-                        <FaSyncAlt/>
+                        <span className="relative flex items-center">
+                            <svg 
+                                className="w-4 h-4 mr-2 transition-transform group-hover:rotate-180" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            רענן
+                        </span>
                     </button>
+                    
                     <button
                         onClick={handleSaveClick}
-                        className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600"
-                        title="Save"
+                        className="group relative inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-md hover:from-green-600 hover:to-emerald-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
-                        <FaSave/>
+                        <span className="relative flex items-center">
+                            <svg 
+                                className="w-4 h-4 mr-2" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            שמור
+                        </span>
                     </button>
                 </div>
                 <select
@@ -200,24 +219,51 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={handleAddNewTable}
-                        className="p-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600"
-                        title="Add New Table"
+                        className="group relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                        <FaPlus/>
+                        <span className="relative flex items-center">
+                            <svg 
+                                className="w-4 h-4 mr-2" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            הוסף לוח
+                        </span>
                     </button>
                     <button
                         onClick={() => setIsRenaming(true)}
-                        className="p-2 bg-purple-500 text-white rounded-full hover:bg-purple-600"
-                        title="Rename Table"
+                        className="group relative inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-md hover:from-blue-600 hover:to-cyan-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
-                        <FaPen/>
+                        <span className="relative flex items-center">
+                            <svg 
+                                className="w-3.5 h-3.5 mr-1.5" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            שנה שם
+                        </span>
                     </button>
                     <button
                         onClick={handleDeleteCurrentTable}
-                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
-                        title="Delete Table"
+                        className="group relative inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-rose-500 to-pink-600 rounded-lg shadow-md hover:from-rose-600 hover:to-pink-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
                     >
-                        <FaTrash/>
+                        <span className="relative flex items-center">
+                            <svg 
+                                className="w-3.5 h-3.5 mr-1.5" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            מחק לוח
+                        </span>
                     </button>
                 </div>
             </div>
@@ -302,22 +348,58 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                     </div>
                 </div>
             )}
-            <div className="flex justify-center mt-6">
-                <div className="text-center">
-                    <button
-                        onClick={handleSolve}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        {solving ? "Solving..." : "Solve"}
-                    </button>
-                    {solveError && <div className="text-red-500 mt-2">{solveError}</div>}
-                    <button
-                        onClick={handleExportToExcel}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mt-4 ml-4"
-                    >
-                        <FaFileExcel className="inline-block mr-2"/> Export to Excel
-                    </button>
-                </div>
+            <div className="flex justify-center gap-4 mt-6">
+                <button
+                    onClick={handleSolve}
+                    className="group relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    disabled={solving}
+                >
+                    <span className="relative flex items-center">
+                        {solving ? (
+                            <svg 
+                                className="animate-spin w-4 h-4 mr-2" 
+                                fill="none" 
+                                viewBox="0 0 24 24"
+                            >
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                        ) : (
+                            <svg 
+                                className="w-4 h-4 mr-2" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        )}
+                        {solving ? "...מחשב" : "פתור"}
+                    </span>
+                    <div className="absolute inset-0 rounded-lg overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/50 to-purple-600/50 transform translate-y-full transition-transform duration-200 ease-in-out group-hover:translate-y-0"></div>
+                    </div>
+                </button>
+
+                <button
+                    onClick={handleExportToExcel}
+                    className="group relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-md hover:from-green-600 hover:to-emerald-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                    <span className="relative flex items-center">
+                        <svg 
+                            className="w-4 h-4 mr-2" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
+                        ייצא לאקסל
+                    </span>
+                    <div className="absolute inset-0 rounded-lg overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-green-500/50 to-emerald-600/50 transform translate-y-full transition-transform duration-200 ease-in-out group-hover:translate-y-0"></div>
+                    </div>
+                </button>
             </div>
         </div>
     );

@@ -27,6 +27,37 @@ const SmallTable = ({ employeeName }) => {
   const markedCells = employeeData?.[employeeName] || {};
   const employeeColor = employeeData?.[employeeName]?.color || "#ffffff";
 
+  const calculateConstraints = (visualMarks) => {
+    const updatedMarkedCells = { ...visualMarks };  // Start with visual marks
+
+    // Calculate corresponding indices for all marked cells
+    shifts.forEach((_, shiftIndex) => {
+      tableData.schools.forEach((_, colIndex) => {
+        const visualKey = `visual_${shiftIndex * 7 + colIndex}`;
+        const cellState = visualMarks[visualKey];
+        
+        if (cellState === "x" || cellState === "-") {
+          // Calculate indices for this cell
+          const numSchools = tableData.schools.length;
+          let baseIndex = 0;
+          
+          for (let i = 0; i < shiftIndex; i++) {
+            const slotsInShift = (tableData.slots[i]?.slots?.length || 0);
+            baseIndex += slotsInShift * numSchools;
+          }
+          
+          const currentShiftSlotsCount = (tableData.slots[shiftIndex]?.slots?.length || 0);
+          for (let i = 0; i < currentShiftSlotsCount; i++) {
+            const slotKey = baseIndex + (i * numSchools) + colIndex;
+            updatedMarkedCells[slotKey] = cellState;
+          }
+        }
+      });
+    });
+
+    return updatedMarkedCells;
+  };
+
   const toggleCell = (shiftIndex, col) => {
     const visualKey = `visual_${shiftIndex * 7 + col}`;
     const currentState = markedCells[visualKey];
@@ -41,42 +72,19 @@ const SmallTable = ({ employeeName }) => {
       updatedState = "x";
     }
 
-    // Create a fresh copy of markedCells without the visual keys
-    const updatedMarkedCells = {};
+    // Create object with only visual marks
+    const visualMarks = {};
     Object.entries(markedCells).forEach(([key, value]) => {
       if (key.startsWith('visual_')) {
-        updatedMarkedCells[key] = value;
+        visualMarks[key] = value;
       }
     });
 
-    // Update the visual state
-    updatedMarkedCells[visualKey] = updatedState;
+    // Update the current visual state
+    visualMarks[visualKey] = updatedState;
 
-    // Calculate corresponding indices for this shift
-    const numSchools = tableData.schools.length;
-    let baseIndex = 0;
-    for (let i = 0; i < shiftIndex; i++) {
-      const slotsInShift = (tableData.slots[i]?.slots?.length || 0);
-      baseIndex += slotsInShift * numSchools;
-    }
-    
-    const currentShiftSlotsCount = (tableData.slots[shiftIndex]?.slots?.length || 0);
-    const correspondingIndices = [];
-    
-    // Get all corresponding indices for this shift+column
-    for (let i = 0; i < currentShiftSlotsCount; i++) {
-      const slotKey = baseIndex + (i * numSchools) + col;
-      correspondingIndices.push(slotKey);
-    }
-
-    // Add marks based on the updated state
-    if (updatedState === "x" || updatedState === "-") {
-      correspondingIndices.forEach(index => {
-        updatedMarkedCells[index] = updatedState;
-      });
-    }
-
-    console.log('Updated marked cells:', updatedMarkedCells); // Debug log
+    // Calculate all constraints based on visual marks
+    const updatedMarkedCells = calculateConstraints(visualMarks);
 
     setEmployeeData((prev) => ({
       ...prev,
@@ -87,61 +95,33 @@ const SmallTable = ({ employeeName }) => {
   // Get only the shifts (not the individual slots) for display
   const shifts = tableData.slots.map(slot => slot.shift);
 
-  const markAllCells = () => {
-    const updatedMarkedCells = {};
-    
-    // Check if all cells are already marked (to determine if we should mark or unmark)
-    const allMarked = shifts.every((_, shiftIndex) => 
-      tableData.schools.every((_, colIndex) => {
-        const visualKey = `visual_${shiftIndex * 7 + colIndex}`;
-        return markedCells[visualKey] === "x";
-      })
-    );
-
-    if (!allMarked) {
-      // Mark all cells
-      shifts.forEach((_, shiftIndex) => {
-        tableData.schools.forEach((_, colIndex) => {
-          const visualKey = `visual_${shiftIndex * 7 + colIndex}`;
-          updatedMarkedCells[visualKey] = "x";
-        });
-      });
-
-      // Calculate and mark all corresponding indices
-      shifts.forEach((_, shiftIndex) => {
-        tableData.schools.forEach((_, colIndex) => {
-          const numSchools = tableData.schools.length;
-          let baseIndex = 0;
-          
-          // Calculate base index for this shift
-          for (let i = 0; i < shiftIndex; i++) {
-            const slotsInShift = (tableData.slots[i]?.slots?.length || 0);
-            baseIndex += slotsInShift * numSchools;
-          }
-          
-          // Mark all slots for this shift and column
-          const currentShiftSlotsCount = (tableData.slots[shiftIndex]?.slots?.length || 0);
-          for (let i = 0; i < currentShiftSlotsCount; i++) {
-            const slotKey = baseIndex + (i * numSchools) + colIndex;
-            updatedMarkedCells[slotKey] = "x";
-          }
-        });
-      });
-    }
-    // If all cells are marked, updatedMarkedCells remains empty (unmarking all)
-
-    setEmployeeData((prev) => ({
-      ...prev,
-      [employeeName]: updatedMarkedCells,
-    }));
-  };
-
+  // Check if all cells are marked (moved outside markAllCells)
   const allMarked = shifts.every((_, shiftIndex) => 
     tableData.schools.every((_, colIndex) => {
       const visualKey = `visual_${shiftIndex * 7 + colIndex}`;
       return markedCells[visualKey] === "x";
     })
   );
+
+  const markAllCells = () => {
+    // Create object with only visual marks
+    const visualMarks = {};
+    
+    shifts.forEach((_, shiftIndex) => {
+      tableData.schools.forEach((_, colIndex) => {
+        const visualKey = `visual_${shiftIndex * 7 + colIndex}`;
+        visualMarks[visualKey] = allMarked ? false : "x";
+      });
+    });
+
+    // Calculate all constraints based on visual marks
+    const updatedMarkedCells = calculateConstraints(visualMarks);
+
+    setEmployeeData((prev) => ({
+      ...prev,
+      [employeeName]: updatedMarkedCells,
+    }));
+  };
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -208,11 +188,11 @@ const SmallTable = ({ employeeName }) => {
       
       <button
         onClick={markAllCells}
-        className="group relative inline-flex items-center justify-center px-6 py-3 text-lg font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+        className="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white transition-all duration-200 ease-in-out transform bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
       >
-        <span className="relative">
+        <span className="relative flex items-center">
           <svg 
-            className={`w-5 h-5 mr-2 inline-block transition-transform ${allMarked ? 'rotate-45' : ''} group-hover:${allMarked ? 'rotate-0' : 'rotate-180'}`}
+            className={`w-4 h-4 mr-2 transition-transform ${allMarked ? 'rotate-45' : ''} group-hover:${allMarked ? 'rotate-0' : 'rotate-180'}`}
             fill="none" 
             viewBox="0 0 24 24" 
             stroke="currentColor"
