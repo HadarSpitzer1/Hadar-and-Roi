@@ -17,7 +17,7 @@ const TableBody = ({
   handleEditHour,
   handleHourLabelChange,
   handleHourLabelSave,
-  handleDeleteHour, handleAddRow,
+  handleDeleteHour,
 }) => {
   return (
     <tbody>
@@ -77,7 +77,7 @@ const TableBody = ({
             return (
               <td
                 key={`${school}-${hour}`}
-                className={`p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50 dark:green ${
+                className={`p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50 ${
                   isConflict ? "bg-red-200 dark:bg-red-800" : ""
                 }`}
                 style={{
@@ -108,13 +108,11 @@ const TableBody = ({
         </tr>
       ))}
       <tr>
-        <td className="p-3 text-center bg-indigo-50/50 dark:bg-indigo-900/30">
+        <td className="p-3 text-center">
           <button
-              onClick={handleAddRow}
-              className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${
-                  hoveredHourIndex === 0 ? "opacity-100" : "opacity-75"
-              }`}
-              title="Add Row"
+            onClick={handleAddHour}
+            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors"
+            title="הוסף שורה"
           >
             ＋
           </button>

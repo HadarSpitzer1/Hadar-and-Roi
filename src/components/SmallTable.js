@@ -54,6 +54,24 @@ const SmallTable = ({ employeeName }) => {
 
   const { schools, hours } = tableData;
 
+  const markAllCells = () => {
+    const allMarkedCells = {};
+    const totalRows = hours.length; // Get the total number of rows dynamically
+    const totalCols = schools.length; // Get the total number of columns dynamically
+
+    for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+      for (let colIndex = 0; colIndex < totalCols; colIndex++) {
+        const key = rowIndex * totalCols + colIndex; // Use totalCols for correct key calculation
+        allMarkedCells[key] = "x"; // Mark all cells with "x"
+      }
+    }
+
+    setEmployeeData((prev) => ({
+      ...prev,
+      [employeeName]: allMarkedCells,
+    }));
+  };
+
   return (
     <table
       className="w-full border-collapse rounded-lg shadow-md overflow-hidden bg-white dark:bg-gray-800"
@@ -114,6 +132,10 @@ const SmallTable = ({ employeeName }) => {
           </tr>
       ))}
       </tbody>
+
+      <button onClick={markAllCells} className="mb-4 p-2 bg-blue-500 text-white rounded">
+        Mark All
+      </button>
     </table>
   );
 };
