@@ -30,7 +30,7 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
 
 
   const schools = schedules[currentTable]?.schools || [];
-  const shifts = schedules[currentTable]?.shifts || [];
+  const slots = schedules[currentTable]?.slots || [];
   const handleAddEmployee = () => {
     addEmployee(username, newEmployee, setEmployees, setNewEmployee, currentTable,getAccessTokenSilently);
   };
@@ -53,7 +53,7 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
     employees,
     employeeData,
     schools,
-    shifts,
+    slots,
     currentTable,
     schedules,
     setSchedules,

@@ -1,10 +1,10 @@
 
-export const handleTeacherSelect = (school, shift, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
+export const handleTeacherSelect = (school, Slot, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
     const newSchedule = { ...schedule };
     if (!newSchedule[school]) {
         newSchedule[school] = {};
     }
-    newSchedule[school][shift] = teacher || undefined;
+    newSchedule[school][Slot] = teacher || undefined;
 
     setSchedule(newSchedule);
 
@@ -34,77 +34,77 @@ export const handleAddSchool = (schools, setSchools, schedules, setSchedules, cu
     setSchedules(updatedSchedules);
 };
 
-export const handleAddShift = (shifts, setShifts, schedules, setSchedules, currentTable) => {
-    const newShiftName = `שורה  ${shifts.length + 1}`;
-    const updatedShifts = [...shifts, newShiftName];
-    setShifts(updatedShifts);
+export const handleAddSlots = (slots, setSlots, schedules, setSchedules, currentTable) => {
+    const newSlotName = `שורה  ${slots.length + 1}`;
+    const updatedSlots = [...slots, newSlotName];
+    setSlots(updatedSlots);
 
     const updatedSchedules = {
         ...schedules,
         [currentTable]: {
             ...schedules[currentTable],
-            shifts: updatedShifts,
+            slots: updatedSlots,
         },
     };
     setSchedules(updatedSchedules);
 };
 
-export const handleEditShift = (index, shifts, setEditingShiftIndex, setNewShiftLabel) => {
-    setEditingShiftIndex(index);
-    setNewShiftLabel(shifts[index]);
+export const handleEditSlots = (index, slots, setEditingSlotIndex, setNewSlotLabel) => {
+    setEditingSlotIndex(index);
+    setNewSlotLabel(slots[index]);
 };
 
-export const handleShiftLabelChange = (value, setNewShiftLabel) => {
-    setNewShiftLabel(value);
+export const handleSlotsLabelChange = (value, setNewSlotLabel) => {
+    setNewSlotLabel(value);
 };
 
-export const handleShiftLabelSave = (
+export const handleSlotsLabelSave = (
     index,
-    newShiftLabel,
-    shifts,
-    setShifts,
+    newSlotLabel,
+    slots,
+    setSlots,
     schedules,
     setSchedules,
     currentTable,
-    setEditingShiftIndex,
-    setNewShiftLabel // Add this parameter
+    setEditingSlotIndex,
+    setNewSlotLabel // Add this parameter
 ) => {
-    const updatedShifts = [...shifts];
-    updatedShifts[index] = newShiftLabel;
-    setShifts(updatedShifts);
+    const updatedSlots = [...slots];
+    updatedSlots[index] = newSlotLabel;
+    setSlots(updatedSlots);
 
     const updatedSchedules = {
         ...schedules,
         [currentTable]: {
             ...schedules[currentTable],
-            shifts: updatedShifts,
+            slots: updatedSlots,
         },
     };
     setSchedules(updatedSchedules);
 
-    setEditingShiftIndex(null);
-    setNewShiftLabel(""); // Reset the newShiftLabel state
+    setEditingSlotIndex(null);
+    setNewSlotLabel(""); // Reset the newSlotLabel state
 };
 
-export const handleDeleteShift = (index, shifts, setShifts, schedule, setSchedule, schools, schedules, setSchedules, currentTable) => {
-    if (window.confirm("Are you sure you want to delete this shift?")) {
-        const updatedShifts = shifts.filter((_, i) => i !== index);
+export const handleDeleteSlots = (index, slots, setSlots, schedule, setSchedule, schools, schedules, setSchedules, currentTable) => {
+    if (window.confirm("Are you sure you want to delete this Slot?")) {
+        const updatedSlots = slots.filter((_, i) => i !== index);
 
         const updatedSchedule = { ...schedule };
         schools.forEach((school) => {
             if (updatedSchedule[school]) {
-                delete updatedSchedule[school][shifts[index]];
+                delete updatedSchedule[school][slots[index]];
             }
         });
 
-        setShifts(updatedShifts);
+        setSlots(updatedSlots);
         setSchedule(updatedSchedule);
 
         const updatedSchedules = {
             ...schedules,
             [currentTable]: {
                 ...schedules[currentTable],
-                shifts: updatedShifts,
+                slots: updatedSlots,
                 schedule: updatedSchedule,
             },
         };

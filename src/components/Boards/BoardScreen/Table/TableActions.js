@@ -7,7 +7,7 @@ export const loadTables = async (
     setEmployees,
     setCurrentTable,
     setSchools,
-    setShifts,
+    setSlots,
     setSchedule,
     setEmployeeData,
     username,
@@ -30,7 +30,7 @@ export const loadTables = async (
 
                 const initialTable = data.tables[firstTableKey] || {};
                 setSchools(initialTable.schools || []);
-                setShifts(initialTable.shifts || []);
+                setSlots(initialTable.slots || []);
                 setSchedule(initialTable.schedule || {});
             }
         }
@@ -49,11 +49,11 @@ export const handleSave = async (username, schedules, employees, getAccessTokenS
         console.error("Error saving data:", err);
     }
 };
-export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools, setShifts, setSchedule) => {
+export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
     const newTableKey = `טבלה ${Object.keys(schedules).length + 1}`;
     const newTable = {
         schools: [` עמודה ${Object.keys(schedules).length + 1}`],
-        shifts: ["שורה 1", "שורה 2"],
+        slots: ["שורה 1", "שורה 2"],
         schedule: {},
     };
 
@@ -61,11 +61,11 @@ export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools
     setSchedules(updatedSchedules);
     setCurrentTable(newTableKey);
     setSchools(newTable.schools);
-    setShifts(newTable.shifts);
+    setSlots(newTable.slots);
     setSchedule(newTable.schedule);
 };
 
-export const deleteCurrentTable = (currentTable, schedules, setSchedules, setCurrentTable, setSchools, setShifts, setSchedule) => {
+export const deleteCurrentTable = (currentTable, schedules, setSchedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
     if (!currentTable) {
         return;
     }
@@ -82,11 +82,11 @@ export const deleteCurrentTable = (currentTable, schedules, setSchedules, setCur
         if (remainingTables.length > 0) {
             const newCurrentTable = updatedSchedules[remainingTables[0]];
             setSchools(newCurrentTable.schools || []);
-            setShifts(newCurrentTable.shifts || []);
+            setSlots(newCurrentTable.slots || []);
             setSchedule(newCurrentTable.schedule || {});
         } else {
             setSchools([]);
-            setShifts([]);
+            setSlots([]);
             setSchedule({});
         }
     }
@@ -111,12 +111,12 @@ export const handleRenameTable = (newTableName, currentTable, schedules, setSche
     setIsRenaming(false);
     setNewTableName("");
 };
-export const handleTableSwitch = (tableKey, schedules, setCurrentTable, setSchools, setShifts, setSchedule) => {
+export const handleTableSwitch = (tableKey, schedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
     setCurrentTable(tableKey);
 
     const tableData = schedules[tableKey] || {};
     setSchools(tableData.schools || []);
-    setShifts(tableData.shifts || []);
+    setSlots(tableData.slots || []);
     setSchedule(tableData.schedule || {});
 };
 

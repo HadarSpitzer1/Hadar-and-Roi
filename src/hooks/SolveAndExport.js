@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 
-const useSolveAndExport = ({ employees, employeeData, schools, shifts, currentTable, schedules, setSchedules, setSchedule, managers }) => {
+const useSolveAndExport = ({ employees, employeeData, schools, slots, currentTable, schedules, setSchedules, setSchedule, managers }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
@@ -74,22 +74,22 @@ const useSolveAndExport = ({ employees, employeeData, schools, shifts, currentTa
             const newSchedule = {};
 
             const numOfSchools = schools.length;
-            const numOfShifts = shifts.length;
+            const numOfSlots = slots.length;
 
             for (const i in rawSchedule) {
                 const index = parseInt(i, 10);
-                const shiftIndex = Math.floor(index / numOfSchools);
+                const slotIndex = Math.floor(index / numOfSchools);
                 const schoolIndex = index % numOfSchools;
 
-                if (shiftIndex < numOfShifts && schoolIndex < numOfSchools) {
-                    const shift = shifts[shiftIndex];
+                if (slotIndex < numOfSlots && schoolIndex < numOfSchools) {
+                    const slot = slots[slotIndex];
                     const school = schools[schoolIndex];
                     const teacher = rawSchedule[i];
 
                     if (!newSchedule[school]) {
                         newSchedule[school] = {};
                     }
-                    newSchedule[school][shift] = teacher;
+                    newSchedule[school][slot] = teacher;
                 }
             }
 
@@ -113,18 +113,18 @@ const useSolveAndExport = ({ employees, employeeData, schools, shifts, currentTa
         }
     };
 
-    const exportToExcel = (schools, shifts, schedule) => {
+    const exportToExcel = (schools, slots, schedule) => {
         const workbook = XLSX.utils.book_new();
         const tableData = [];
 
         // Add the first row with school names
         tableData.push([" ", ...schools]);
 
-        // Build each row based on shifts
-        for (const shift of shifts) {
-            const row = [shift];
+        // Build each row based on slots
+        for (const slot of slots) {
+            const row = [slot];
             for (const school of schools) {
-                row.push(schedule[school]?.[shift] || "");
+                row.push(schedule[school]?.[slot] || "");
             }
             tableData.push(row);
         }

@@ -13,16 +13,15 @@ const TableHeader = ({
   handleDeleteSchool,
   hoveredSchoolIndex,
   setHoveredSchoolIndex,
-  hoveredShiftIndex,
-  setHoveredShiftIndex,
-  handleAddRow, // Handles adding new rows
+  hoveredSlotIndex,
+                         setHoveredSlotsIndex,
 }) => {
   return (
     <thead>
       <tr
         className="bg-indigo-50 dark:bg-indigo-900/50 text-gray-700 dark:text-gray-200"
-        onMouseEnter={() => setHoveredShiftIndex(0)} // Assuming 0 is the header row index
-        onMouseLeave={() => setHoveredShiftIndex(null)}
+        onMouseEnter={() => setHoveredSlotsIndex(0)} // Assuming 0 is the header row index
+        onMouseLeave={() => setHoveredSlotsIndex(null)}
       >
         {/* Add new row button */}
           <th className="p-3 text-center rounded-tl-xl">
@@ -87,7 +86,7 @@ const TableHeader = ({
           <button
             onClick={handleAddSchool}
             className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${
-              hoveredShiftIndex === 0 ? "opacity-100" : "opacity-75"
+              hoveredSlotIndex === 0 ? "opacity-100" : "opacity-75"
             }`}
             title="Add Column"
           >
