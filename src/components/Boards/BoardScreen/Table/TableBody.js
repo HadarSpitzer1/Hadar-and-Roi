@@ -23,6 +23,9 @@ const TableBody = ({
     <tbody>
       {shifts.map((Shift, rowIndex) => (
         <tr key={rowIndex} className="border-b border-indigo-100 dark:border-indigo-800/50">
+          <td className="p-3 text-center bg-indigo-50 dark:bg-indigo-900 text-gray-700 dark:text-gray-200">
+            Additional Info {/* Replace with dynamic data if needed */}
+          </td>
           <td
               className="p-3 font-medium bg-indigo-50/50 dark:bg-indigo-900/30 text-center text-gray-700 dark:text-gray-200 relative min-w-[70px]"
               dir="ltr"
@@ -44,6 +47,7 @@ const TableBody = ({
                 className="w-full p-1 text-center bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-800 rounded"
               />
             ) : (
+
               <div className="flex items-center justify-center">
                 <span className="cursor-default">{Shift}</span>
                 {hoveredShiftIndex === rowIndex && (
@@ -62,19 +66,12 @@ const TableBody = ({
                     >
                       <FaTrash />
                     </button>
-
-                      {/*<button*/}
-                      {/*    onClick={() => handleAddSlot(rowIndex)}*/}
-                      {/*    className="text-blue-600 hover:text-blue-800"*/}
-                      {/*    title="Add slot"*/}
-                      {/*>*/}
-                      {/*    ＋*/}
-                      {/*</button>*/}
                   </div>
                 )}
               </div>
             )}
           </td>
+
           {schools.map((school) => {
             const isConflict = conflicts[Shift] && conflicts[Shift].includes(school);
             const assignedEmployee = schedule[school]?.[Shift];
