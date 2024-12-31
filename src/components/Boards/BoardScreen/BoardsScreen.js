@@ -23,7 +23,8 @@ import {
     handleSchoolNameSave,
     handleDeleteSchool,
     handleEditSchool,
-    handleSchoolNameChange
+    handleSchoolNameChange,
+    handleAddSubSlot
 } from "./Table/EditCells";
 
 const BoardsScreen = ({username, getAccessTokenSilently}) => {
@@ -51,7 +52,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
     const [hoveredSchoolIndex, setHoveredSchoolIndex] = useState(null);
     const [editingSlotsIndex, setEditingSlotsIndex] = useState(null);
     const [newSlotsLabel, setNewSlotsLabel] = useState("");
-    const [hoveredSlotsIndex, setHoveredSlotsIndex] = useState(null);
+    const [hoveredSlotIndex, setHoveredSlotIndex] = useState(null);
 
     useEffect(() => {
         if (currentTable && schedules[currentTable]) {
@@ -162,6 +163,10 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         handleDeleteSchool(index, schools, setSchools, schedule, setSchedule, schedules, setSchedules, currentTable);
     };
 
+    const handleAddSubSlotClick = (shiftIndex) => {
+        handleAddSubSlot(shiftIndex, slots, setSlots, schedules, setSchedules, currentTable);
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
@@ -240,8 +245,8 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                                 handleDeleteSchool={handleDeleteSchoolClick}
                                 hoveredSchoolIndex={hoveredSchoolIndex}
                                 setHoveredSchoolIndex={setHoveredSchoolIndex}
-                                hoveredSlotsIndex={hoveredSlotsIndex}
-                                setHoveredSlotsIndex={setHoveredSlotsIndex}
+                                hoveredSlotIndex={hoveredSlotIndex}
+                                setHoveredSlotIndex={setHoveredSlotIndex}
                                 handleAddRow={handleAddSlotsClick}
                             />
                             <TableBody
@@ -259,9 +264,10 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                                 handleSlotsLabelChange={handleSlotsLabelChangeClick}
                                 handleSlotsLabelSave={handleSlotsLabelSaveClick}
                                 handleDeleteSlots={handleDeleteSlotsClick}
-                                hoveredSlotsIndex={hoveredSlotsIndex}
-                                setHoveredSlotsIndex={setHoveredSlotsIndex}
+                                hoveredSlotIndex={hoveredSlotIndex}
+                                setHoveredSlotIndex={setHoveredSlotIndex}
                                 handleAddRow={handleAddSlotsClick}
+                                handleAddSubSlot={handleAddSubSlotClick}
                             />
                         </table>
                     </div>

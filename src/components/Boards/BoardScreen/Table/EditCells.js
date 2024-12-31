@@ -1,4 +1,3 @@
-
 export const handleTeacherSelect = (school, Slot, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
     const newSchedule = { ...schedule };
     if (!newSchedule[school]) {
@@ -35,8 +34,13 @@ export const handleAddSchool = (schools, setSchools, schedules, setSchedules, cu
 };
 
 export const handleAddSlots = (slots, setSlots, schedules, setSchedules, currentTable) => {
-    const newSlotName = `שורה  ${slots.length + 1}`;
-    const updatedSlots = [...slots, newSlotName];
+    const newShift = {
+        shift: `משמרת ${slots.length + 1}`,
+        slots: ['תא 1'] // Initialize with one default slot
+    };
+    
+    // Initialize slots array if it's undefined
+    const updatedSlots = slots ? [...slots, newShift] : [newShift];
     setSlots(updatedSlots);
 
     const updatedSchedules = {
@@ -158,5 +162,36 @@ export const handleEditSchool = (index, schools, setEditingSchoolIndex, setNewSc
 
 export const handleSchoolNameChange = (value, setNewSchoolName) => {
     setNewSchoolName(value);
+};
+
+export const handleAddSubSlot = (shiftIndex, slots, setSlots, schedules, setSchedules, currentTable) => {
+    // Initialize slots array if it's undefined
+    if (!slots) {
+        slots = [];
+    }
+    
+    const updatedSlots = [...slots];
+    if (!updatedSlots[shiftIndex]) {
+        updatedSlots[shiftIndex] = {
+            shift: `משמרת ${shiftIndex + 1}`,
+            slots: []
+        };
+    }
+    
+    updatedSlots[shiftIndex] = {
+        ...updatedSlots[shiftIndex],
+        slots: [...(updatedSlots[shiftIndex].slots || []), `תא ${(updatedSlots[shiftIndex].slots || []).length + 1}`]
+    };
+    
+    setSlots(updatedSlots);
+    
+    const updatedSchedules = {
+        ...schedules,
+        [currentTable]: {
+            ...schedules[currentTable],
+            slots: updatedSlots,
+        },
+    };
+    setSchedules(updatedSchedules);
 };
 

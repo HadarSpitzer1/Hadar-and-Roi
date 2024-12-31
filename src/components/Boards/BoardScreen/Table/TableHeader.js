@@ -14,14 +14,14 @@ const TableHeader = ({
   hoveredSchoolIndex,
   setHoveredSchoolIndex,
   hoveredSlotIndex,
-                         setHoveredSlotsIndex,
+  setHoveredSlotIndex,
 }) => {
   return (
     <thead>
       <tr
         className="bg-indigo-50 dark:bg-indigo-900/50 text-gray-700 dark:text-gray-200"
-        onMouseEnter={() => setHoveredSlotsIndex(0)} // Assuming 0 is the header row index
-        onMouseLeave={() => setHoveredSlotsIndex(null)}
+        onMouseEnter={() => setHoveredSlotIndex(0)}
+        onMouseLeave={() => setHoveredSlotIndex(null)}
       >
         {/* Add new row button */}
           <th className="p-3 text-center rounded-tl-xl">

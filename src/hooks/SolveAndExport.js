@@ -21,9 +21,9 @@ const useSolveAndExport = ({ employees, employeeData, schools, slots, currentTab
 
         employees.forEach((employee) => {
             const markedCells = employeeData[employee] || {};
-            unavailableConstraints[employee] = Object.keys(markedCells)
-                .filter((key) => markedCells[key])
-                .map((key) => parseInt(key, 10))
+            unavailableConstraints[employee] = Object.entries(markedCells)
+                .filter(([key, value]) => !key.startsWith('visual_') && value === "x")
+                .map(([key]) => parseInt(key, 10))
                 .filter((key) => !isNaN(key));
         });
 
@@ -35,9 +35,9 @@ const useSolveAndExport = ({ employees, employeeData, schools, slots, currentTab
 
         employees.forEach((employee) => {
             const markedCells = employeeData[employee] || {};
-            const filteredKeys = Object.keys(markedCells)
-                .filter((key) => markedCells[key] === "-")
-                .map((key) => parseInt(key, 10))
+            const filteredKeys = Object.entries(markedCells)
+                .filter(([key, value]) => !key.startsWith('visual_') && value === "-")
+                .map(([key]) => parseInt(key, 10))
                 .filter((key) => !isNaN(key));
 
             if (filteredKeys.length > 0) {

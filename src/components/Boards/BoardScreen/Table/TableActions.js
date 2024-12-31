@@ -16,21 +16,43 @@ export const loadTables = async (
     try {
         setLoading(true);
         setError(null);
-        console.log('TRYING TO PEINT ACCESS STUFF')
-        console.log(getAccessTokenSilently)
         const data = await fetchUserData(username, getAccessTokenSilently);
         if (data) {
-            setSchedules(data.tables || {});
+            // Convert old slot format to new format if needed
+            const convertedTables = Object.entries(data.tables || {}).reduce((acc, [key, table]) => {
+                // Check if slots is an array of strings (old format)
+                const isOldFormat = Array.isArray(table.slots) && 
+                    (table.slots.length === 0 || typeof table.slots[0] === 'string');
+
+                const convertedSlots = isOldFormat ? [
+                    {
+                        shift: "משמרת 1",
+                        slots: table.slots || []
+                    }
+                ] : table.slots;
+
+                acc[key] = {
+                    ...table,
+                    slots: convertedSlots
+                };
+                return acc;
+            }, {});
+
+            setSchedules(convertedTables);
             setEmployees(data.employees || []);
             setEmployeeData(data.employeeData || {});
-            const tableKeys = Object.keys(data.tables || {});
+
+            const tableKeys = Object.keys(convertedTables);
             if (tableKeys.length > 0) {
                 const firstTableKey = tableKeys[0];
                 setCurrentTable(firstTableKey);
 
-                const initialTable = data.tables[firstTableKey] || {};
+                const initialTable = convertedTables[firstTableKey];
                 setSchools(initialTable.schools || []);
-                setSlots(initialTable.slots || []);
+                setSlots(initialTable.slots || [{
+                    shift: "משמרת 1",
+                    slots: ["תא 1"]
+                }]);
                 setSchedule(initialTable.schedule || {});
             }
         }
@@ -52,8 +74,11 @@ export const handleSave = async (username, schedules, employees, getAccessTokenS
 export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
     const newTableKey = `טבלה ${Object.keys(schedules).length + 1}`;
     const newTable = {
-        schools: [` עמודה ${Object.keys(schedules).length + 1}`],
-        slots: ["שורה 1", "שורה 2"],
+        schools: [`עמודה ${Object.keys(schedules).length + 1}`],
+        slots: [{
+            shift: "משמרת 1",
+            slots: ["תא 1"]
+        }],
         schedule: {},
     };
 
