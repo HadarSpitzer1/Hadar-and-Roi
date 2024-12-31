@@ -7,7 +7,7 @@ const useSolveSchedule = ({
                               calculateConstraints,
                               calculatePreferNotToConstraints,
                               schools,
-                              hours,
+                              shifts,
                               currentTable,
                               schedules,
                               setSchedules,
@@ -40,22 +40,22 @@ const useSolveSchedule = ({
             const newSchedule = {};
 
             const numOfSchools = schools.length;
-            const numOfHours = hours.length;
+            const numOfShifts = shifts.length;
 
             for (const i in rawSchedule) {
                 const index = parseInt(i, 10);
-                const hourIndex = Math.floor(index / numOfSchools);
+                const shiftIndex = Math.floor(index / numOfSchools);
                 const schoolIndex = index % numOfSchools;
 
-                if (hourIndex < numOfHours && schoolIndex < numOfSchools) {
-                    const hour = hours[hourIndex];
+                if (shiftIndex < numOfShifts && schoolIndex < numOfSchools) {
+                    const shift = shifts[shiftIndex];
                     const school = schools[schoolIndex];
                     const teacher = rawSchedule[i];
 
                     if (!newSchedule[school]) {
                         newSchedule[school] = {};
                     }
-                    newSchedule[school][hour] = teacher;
+                    newSchedule[school][shift] = teacher;
                 }
             }
 

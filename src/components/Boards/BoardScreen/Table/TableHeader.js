@@ -13,23 +13,23 @@ const TableHeader = ({
   handleDeleteSchool,
   hoveredSchoolIndex,
   setHoveredSchoolIndex,
-  hoveredHourIndex,
-  setHoveredHourIndex,
+  hoveredShiftIndex,
+  setHoveredShiftIndex,
   handleAddRow, // Handles adding new rows
 }) => {
   return (
     <thead>
       <tr
         className="bg-indigo-50 dark:bg-indigo-900/50 text-gray-700 dark:text-gray-200"
-        onMouseEnter={() => setHoveredHourIndex(0)} // Assuming 0 is the header row index
-        onMouseLeave={() => setHoveredHourIndex(null)}
+        onMouseEnter={() => setHoveredShiftIndex(0)} // Assuming 0 is the header row index
+        onMouseLeave={() => setHoveredShiftIndex(null)}
       >
         {/* Add new row button */}
         <th className="p-3 text-center rounded-tl-xl">
         {/*  <button*/}
         {/*    onClick={handleAddRow}*/}
         {/*    className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${*/}
-        {/*      hoveredHourIndex === 0 ? "opacity-100" : "opacity-75"*/}
+        {/*      hoveredShiftIndex === 0 ? "opacity-100" : "opacity-75"*/}
         {/*    }`}*/}
         {/*    title="Add Row"*/}
         {/*  >*/}
@@ -92,7 +92,7 @@ const TableHeader = ({
           <button
             onClick={handleAddSchool}
             className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${
-              hoveredHourIndex === 0 ? "opacity-100" : "opacity-75"
+              hoveredShiftIndex === 0 ? "opacity-100" : "opacity-75"
             }`}
             title="Add Column"
           >

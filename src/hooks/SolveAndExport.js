@@ -4,9 +4,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-import { useBoards } from '../components/Boards/BoardsContext'; // Update the path as necessary
 
-const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTable, schedules, setSchedules, setSchedule, managers }) => {
+const useSolveAndExport = ({ employees, employeeData, schools, shifts, currentTable, schedules, setSchedules, setSchedule, managers }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
@@ -75,22 +74,22 @@ const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTab
             const newSchedule = {};
 
             const numOfSchools = schools.length;
-            const numOfHours = hours.length;
+            const numOfShifts = shifts.length;
 
             for (const i in rawSchedule) {
                 const index = parseInt(i, 10);
-                const hourIndex = Math.floor(index / numOfSchools);
+                const shiftIndex = Math.floor(index / numOfSchools);
                 const schoolIndex = index % numOfSchools;
 
-                if (hourIndex < numOfHours && schoolIndex < numOfSchools) {
-                    const hour = hours[hourIndex];
+                if (shiftIndex < numOfShifts && schoolIndex < numOfSchools) {
+                    const shift = shifts[shiftIndex];
                     const school = schools[schoolIndex];
                     const teacher = rawSchedule[i];
 
                     if (!newSchedule[school]) {
                         newSchedule[school] = {};
                     }
-                    newSchedule[school][hour] = teacher;
+                    newSchedule[school][shift] = teacher;
                 }
             }
 
@@ -114,18 +113,18 @@ const useSolveAndExport = ({ employees, employeeData, schools, hours, currentTab
         }
     };
 
-    const exportToExcel = (schools, hours, schedule) => {
+    const exportToExcel = (schools, shifts, schedule) => {
         const workbook = XLSX.utils.book_new();
         const tableData = [];
 
         // Add the first row with school names
         tableData.push([" ", ...schools]);
 
-        // Build each row based on hours
-        for (const hour of hours) {
-            const row = [hour];
+        // Build each row based on shifts
+        for (const shift of shifts) {
+            const row = [shift];
             for (const school of schools) {
-                row.push(schedule[school]?.[hour] || "");
+                row.push(schedule[school]?.[shift] || "");
             }
             tableData.push(row);
         }

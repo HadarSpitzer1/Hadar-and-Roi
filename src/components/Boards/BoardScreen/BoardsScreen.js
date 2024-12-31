@@ -15,11 +15,11 @@ import {
 import {
     handleTeacherSelect,
     handleAddSchool,
-    handleAddHour,
-    handleEditHour,
-    handleHourLabelChange,
-    handleHourLabelSave,
-    handleDeleteHour,
+    handleAddShift,
+    handleEditShift,
+    handleShiftLabelChange,
+    handleShiftLabelSave,
+    handleDeleteShift,
     handleSchoolNameSave,
     handleDeleteSchool,
     handleEditSchool,
@@ -41,7 +41,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
     } = useBoards();
 
     const [schools, setSchools] = useState([]);
-    const [hours, setHours] = useState([]);
+    const [shifts, setShifts] = useState([]);
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -50,15 +50,15 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
     const [editingSchoolIndex, setEditingSchoolIndex] = useState(null);
     const [newSchoolName, setNewSchoolName] = useState("");
     const [hoveredSchoolIndex, setHoveredSchoolIndex] = useState(null);
-    const [editingHourIndex, setEditingHourIndex] = useState(null);
-    const [newHourLabel, setNewHourLabel] = useState("");
-    const [hoveredHourIndex, setHoveredHourIndex] = useState(null);
+    const [editingShiftIndex, setEditingShiftIndex] = useState(null);
+    const [newShiftLabel, setNewShiftLabel] = useState("");
+    const [hoveredShiftIndex, setHoveredShiftIndex] = useState(null);
 
     useEffect(() => {
         if (currentTable && schedules[currentTable]) {
             const tableData = schedules[currentTable];
             setSchools(tableData.schools || []);
-            setHours(tableData.hours || []);
+            setShifts(tableData.shifts || []);
             setSchedule(tableData.schedule || {});
         }
     }, [currentTable, schedules]);
@@ -66,7 +66,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         employees,
         employeeData,
         schools,
-        hours,
+        shifts,
         currentTable,
         schedules,
         setSchedules,
@@ -75,36 +75,36 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
     });
 
     const handleExportToExcel = () => {
-        exportToExcel(schools, hours, schedule);
+        exportToExcel(schools, shifts, schedule);
     };
 
     const handleSaveClick = () => {
         handleSave(username, schedules, employees, getAccessTokenSilently,employeeData);
     };
     const handleTableSwitchClick = (tableKey) => {
-        handleTableSwitch(tableKey, schedules, setCurrentTable, setSchools, setHours, setSchedule);
+        handleTableSwitch(tableKey, schedules, setCurrentTable, setSchools, setShifts, setSchedule);
     };
-    const handleHourLabelSaveClick = () => {
-        handleHourLabelSave(
-            editingHourIndex,
-            newHourLabel,
-            hours,
-            setHours,
+    const handleShiftLabelSaveClick = () => {
+        handleShiftLabelSave(
+            editingShiftIndex,
+            newShiftLabel,
+            shifts,
+            setShifts,
             schedules,
             setSchedules,
             currentTable,
-            setEditingHourIndex,
-            setNewHourLabel // Pass setNewHourLabel here
+            setEditingShiftIndex,
+            setNewShiftLabel // Pass setNewShiftLabel here
         );
     };
 
 
     const handleAddNewTable = () => {
-        addNewTable(schedules, setSchedules, setCurrentTable, setSchools, setHours, setSchedule);
+        addNewTable(schedules, setSchedules, setCurrentTable, setSchools, setShifts, setSchedule);
     };
 
     const handleDeleteCurrentTable = () => {
-        deleteCurrentTable(currentTable, schedules, setSchedules, setCurrentTable, setSchools, setHours, setSchedule);
+        deleteCurrentTable(currentTable, schedules, setSchedules, setCurrentTable, setSchools, setShifts, setSchedule);
     };
     const handleLoadTables = () => {
         console.log(" IAM TRYING TO PRINT GETACCESSTOKEN")
@@ -116,7 +116,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
             setEmployees,
             setCurrentTable,
             setSchools,
-            setHours,
+            setShifts,
             setSchedule,
             setEmployeeData,
             username,
@@ -128,29 +128,30 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
         handleRenameTable(newTableName, currentTable, schedules, setSchedules, setCurrentTable, setIsRenaming, setNewTableName);
     };
 
-    const handleTeacherSelectClick = (school, hour, teacher) => {
-        handleTeacherSelect(school, hour, teacher, schedule, setSchedule, schedules, setSchedules, currentTable);
+    const handleTeacherSelectClick = (school, shift, teacher) => {
+        handleTeacherSelect(school, shift, teacher, schedule, setSchedule, schedules, setSchedules, currentTable);
     };
 
     const handleAddSchoolClick = () => {
         handleAddSchool(schools, setSchools, schedules, setSchedules, currentTable);
     };
 
-    const handleAddHourClick = () => {
-        handleAddHour(hours, setHours, schedules, setSchedules, currentTable);
+    const handleAddShiftClick = () => {
+        handleAddShift(shifts, setShifts, schedules, setSchedules, currentTable);
     };
 
-    const handleEditHourClick = (index) => {
-        handleEditHour(index, hours, setEditingHourIndex, setNewHourLabel);
+    const handleEditShiftClick = (index) => {
+        handleEditShift(index, shifts, setEditingShiftIndex, setNewShiftLabel);
     };
 
-    const handleHourLabelChangeClick = (value) => {
-        handleHourLabelChange(value, setNewHourLabel);
+    const handleShiftLabelChangeClick = (value) => {
+        handleShiftLabelChange(value, setNewShiftLabel);
     };
 
-    const handleDeleteHourClick = (index) => {
-        handleDeleteHour(index, hours, setHours, schedule, setSchedule, schools, schedules, setSchedules, currentTable);
-    };    const handleEditSchoolClick = (index) => {
+    const handleDeleteShiftClick = (index) => {
+        handleDeleteShift(index, shifts, setShifts, schedule, setSchedule, schools, schedules, setSchedules, currentTable);
+    };
+    const handleEditSchoolClick = (index) => {
         handleEditSchool(index, schools, setEditingSchoolIndex, setNewSchoolName);
     };
 
@@ -240,28 +241,28 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
                                 handleDeleteSchool={handleDeleteSchoolClick}
                                 hoveredSchoolIndex={hoveredSchoolIndex}
                                 setHoveredSchoolIndex={setHoveredSchoolIndex}
-                                hoveredHourIndex={hoveredHourIndex}
-                                setHoveredHourIndex={setHoveredHourIndex}
-                                handleAddRow={handleAddHourClick}
+                                hoveredShiftIndex={hoveredShiftIndex}
+                                setHoveredShiftIndex={setHoveredShiftIndex}
+                                handleAddRow={handleAddShiftClick}
                             />
                             <TableBody
-                                hours={hours}
+                                shifts={shifts}
                                 schools={schools}
                                 schedule={schedule}
                                 conflicts={{}}
                                 employees={employees}
                                 handleTeacherSelect={handleTeacherSelectClick}
-                                handleAddHour={handleAddHour}
-                                editingHourIndex={editingHourIndex}
-                                newHourLabel={newHourLabel}
-                                handleEditHour={handleEditHourClick}
+                                handleAddShift={handleAddShift}
+                                editingShiftIndex={editingShiftIndex}
+                                newShiftLabel={newShiftLabel}
+                                handleEditShift={handleEditShiftClick}
                                 employeeData={employeeData} // Pass employeeData here
-                                handleHourLabelChange={handleHourLabelChangeClick}
-                                handleHourLabelSave={handleHourLabelSaveClick}
-                                handleDeleteHour={handleDeleteHourClick}
-                                hoveredHourIndex={hoveredHourIndex}
-                                setHoveredHourIndex={setHoveredHourIndex}
-                                handleAddRow={handleAddHourClick}
+                                handleShiftLabelChange={handleShiftLabelChangeClick}
+                                handleShiftLabelSave={handleShiftLabelSaveClick}
+                                handleDeleteShift={handleDeleteShiftClick}
+                                hoveredShiftIndex={hoveredShiftIndex}
+                                setHoveredShiftIndex={setHoveredShiftIndex}
+                                handleAddRow={handleAddShiftClick}
                             />
                         </table>
                     </div>

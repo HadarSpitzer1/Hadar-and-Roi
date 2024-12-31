@@ -2,42 +2,42 @@ import React from "react";
 import { FaTrash, FaEdit } from "react-icons/fa";
 
 const TableBody = ({
-  hours,
+  shifts,
   schools,
   schedule,
   conflicts,
   employees,
   employeeData,
-  hoveredHourIndex,
-  setHoveredHourIndex,
+  hoveredShiftIndex,
+  setHoveredShiftIndex,
   handleTeacherSelect,
-  handleAddHour,
-  editingHourIndex,
-  newHourLabel,
-  handleEditHour,
-  handleHourLabelChange,
-  handleHourLabelSave,
-  handleDeleteHour, handleAddRow,
+  handleAddShift,
+  editingShiftIndex,
+  newShiftLabel,
+  handleEditShift,
+  handleShiftLabelChange,
+  handleShiftLabelSave,
+  handleDeleteShift, handleAddRow, handleAddSlot,
 }) => {
   return (
     <tbody>
-      {hours.map((hour, rowIndex) => (
+      {shifts.map((Shift, rowIndex) => (
         <tr key={rowIndex} className="border-b border-indigo-100 dark:border-indigo-800/50">
           <td
-            className="p-3 font-medium bg-indigo-50/50 dark:bg-indigo-900/30 text-center text-gray-700 dark:text-gray-200 relative"
-            dir="ltr"
-            onMouseEnter={() => setHoveredHourIndex(rowIndex)}
-            onMouseLeave={() => setHoveredHourIndex(null)}
+              className="p-3 font-medium bg-indigo-50/50 dark:bg-indigo-900/30 text-center text-gray-700 dark:text-gray-200 relative min-w-[70px]"
+              dir="ltr"
+            onMouseEnter={() => setHoveredShiftIndex(rowIndex)}
+            onMouseLeave={() => setHoveredShiftIndex(null)}
           >
-            {editingHourIndex === rowIndex ? (
+            {editingShiftIndex === rowIndex ? (
               <input
                 type="text"
-                value={newHourLabel}
-                onChange={(e) => handleHourLabelChange(e.target.value)}
-                onBlur={() => handleHourLabelSave(rowIndex)}
+                value={newShiftLabel}
+                onChange={(e) => handleShiftLabelChange(e.target.value)}
+                onBlur={() => handleShiftLabelSave(rowIndex)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleHourLabelSave(rowIndex);
+                    handleShiftLabelSave(rowIndex);
                   }
                 }}
                 autoFocus
@@ -45,44 +45,52 @@ const TableBody = ({
               />
             ) : (
               <div className="flex items-center justify-center">
-                <span className="cursor-default">{hour}</span>
-                {hoveredHourIndex === rowIndex && (
+                <span className="cursor-default">{Shift}</span>
+                {hoveredShiftIndex === rowIndex && (
                   <div className="absolute top-0 left-0 flex space-x-2 px-1">
                     <button
-                      onClick={() => handleEditHour(rowIndex)}
+                      onClick={() => handleEditShift(rowIndex)}
                       className="text-blue-600 hover:text-blue-800"
                       title="Edit Row Name"
                     >
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDeleteHour(rowIndex)}
+                      onClick={() => handleDeleteShift(rowIndex)}
                       className="text-red-600 hover:text-red-800"
                       title="Delete Row"
                     >
                       <FaTrash />
                     </button>
+
+                      {/*<button*/}
+                      {/*    onClick={() => handleAddSlot(rowIndex)}*/}
+                      {/*    className="text-blue-600 hover:text-blue-800"*/}
+                      {/*    title="Add slot"*/}
+                      {/*>*/}
+                      {/*    ＋*/}
+                      {/*</button>*/}
                   </div>
                 )}
               </div>
             )}
           </td>
           {schools.map((school) => {
-            const isConflict = conflicts[hour] && conflicts[hour].includes(school);
-            const assignedEmployee = schedule[school]?.[hour];
+            const isConflict = conflicts[Shift] && conflicts[Shift].includes(school);
+            const assignedEmployee = schedule[school]?.[Shift];
             const employeeColor = assignedEmployee
               ? employeeData[assignedEmployee]?.color || "#ffffff"
               : "#ffffff";
 
             return (
               <td
-                key={`${school}-${hour}`}
+                key={`${school}-${Shift}`}
                 className={`p-3 text-center border-l border-indigo-100 dark:border-indigo-800/50 dark:green ${
                   isConflict ? "bg-red-200 dark:bg-red-800" : ""
                 }`}
                 style={{
                   backgroundColor: isConflict ? "#FFCDD2" : employeeColor,
-                  color: assignedEmployee ? "#000000" : "inherit", // Ensure text contrast
+                  color: assignedEmployee ? "#000000" : "inherit",
                 }}
               >
                 <select
@@ -92,7 +100,7 @@ const TableBody = ({
                       : "bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-800 text-gray-700 dark:text-gray-200"
                   }`}
                   value={assignedEmployee || ""}
-                  onChange={(e) => handleTeacherSelect(school, hour, e.target.value)}
+                  onChange={(e) => handleTeacherSelect(school, Shift, e.target.value)}
                 >
                   <option value="">בחר מורה</option>
                   {employees.map((teacher) => (
@@ -112,7 +120,7 @@ const TableBody = ({
           <button
               onClick={handleAddRow}
               className={`text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors ${
-                  hoveredHourIndex === 0 ? "opacity-100" : "opacity-75"
+                  hoveredShiftIndex === 0 ? "opacity-100" : "opacity-75"
               }`}
               title="Add Row"
           >

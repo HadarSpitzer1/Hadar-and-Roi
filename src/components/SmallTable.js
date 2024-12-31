@@ -3,13 +3,13 @@ import { useBoards } from "./Boards/BoardsContext";
 
 const SmallTable = ({ employeeName }) => {
   const { schedules, currentTable, employeeData, setEmployeeData } = useBoards();
-  const [tableData, setTableData] = useState({ schools: [], hours: [], schedule: {} });
+  const [tableData, setTableData] = useState({ schools: [], shifts: [], schedule: {} });
 
   // Fetch data for the current table
   useEffect(() => {
     if (currentTable && schedules[currentTable]) {
-      const { schools = [], hours = [], schedule = {} } = schedules[currentTable];
-      setTableData({ schools, hours, schedule });
+      const { schools = [], shifts = [], schedule = {} } = schedules[currentTable];
+      setTableData({ schools, shifts, schedule });
     }
   }, [currentTable, schedules]);
 
@@ -52,11 +52,11 @@ const SmallTable = ({ employeeName }) => {
     }));
   };
 
-  const { schools, hours } = tableData;
+  const { schools, shifts } = tableData;
 
   const markAllCells = () => {
     const allMarkedCells = {};
-    const totalRows = hours.length; // Get the total number of rows dynamically
+    const totalRows = shifts.length; // Get the total number of rows dynamically
     const totalCols = schools.length; // Get the total number of columns dynamically
 
     for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
@@ -95,14 +95,14 @@ const SmallTable = ({ employeeName }) => {
       </thead>
 
       <tbody>
-      {hours.map((hour, rowIndex) => (
+      {shifts.map((shift, rowIndex) => (
           <tr key={rowIndex} className="hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors">
             {/* Row Header */}
             <td
                 className="p-3 text-center font-medium border-b border-r border-indigo-200 dark:border-indigo-800"
                 style={{ backgroundColor: employeeColor }}
             >
-              {hour}
+              {shift}
             </td>
 
             {/* Data Cells */}

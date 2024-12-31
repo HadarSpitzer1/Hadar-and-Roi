@@ -1,10 +1,10 @@
 
-export const handleTeacherSelect = (school, hour, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
+export const handleTeacherSelect = (school, shift, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
     const newSchedule = { ...schedule };
     if (!newSchedule[school]) {
         newSchedule[school] = {};
     }
-    newSchedule[school][hour] = teacher || undefined;
+    newSchedule[school][shift] = teacher || undefined;
 
     setSchedule(newSchedule);
 
@@ -34,77 +34,77 @@ export const handleAddSchool = (schools, setSchools, schedules, setSchedules, cu
     setSchedules(updatedSchedules);
 };
 
-export const handleAddHour = (hours, setHours, schedules, setSchedules, currentTable) => {
-    const newHourName = `שורה  ${hours.length + 1}`;
-    const updatedHours = [...hours, newHourName];
-    setHours(updatedHours);
+export const handleAddShift = (shifts, setShifts, schedules, setSchedules, currentTable) => {
+    const newShiftName = `שורה  ${shifts.length + 1}`;
+    const updatedShifts = [...shifts, newShiftName];
+    setShifts(updatedShifts);
 
     const updatedSchedules = {
         ...schedules,
         [currentTable]: {
             ...schedules[currentTable],
-            hours: updatedHours,
+            shifts: updatedShifts,
         },
     };
     setSchedules(updatedSchedules);
 };
 
-export const handleEditHour = (index, hours, setEditingHourIndex, setNewHourLabel) => {
-    setEditingHourIndex(index);
-    setNewHourLabel(hours[index]);
+export const handleEditShift = (index, shifts, setEditingShiftIndex, setNewShiftLabel) => {
+    setEditingShiftIndex(index);
+    setNewShiftLabel(shifts[index]);
 };
 
-export const handleHourLabelChange = (value, setNewHourLabel) => {
-    setNewHourLabel(value);
+export const handleShiftLabelChange = (value, setNewShiftLabel) => {
+    setNewShiftLabel(value);
 };
 
-export const handleHourLabelSave = (
+export const handleShiftLabelSave = (
     index,
-    newHourLabel,
-    hours,
-    setHours,
+    newShiftLabel,
+    shifts,
+    setShifts,
     schedules,
     setSchedules,
     currentTable,
-    setEditingHourIndex,
-    setNewHourLabel // Add this parameter
+    setEditingShiftIndex,
+    setNewShiftLabel // Add this parameter
 ) => {
-    const updatedHours = [...hours];
-    updatedHours[index] = newHourLabel;
-    setHours(updatedHours);
+    const updatedShifts = [...shifts];
+    updatedShifts[index] = newShiftLabel;
+    setShifts(updatedShifts);
 
     const updatedSchedules = {
         ...schedules,
         [currentTable]: {
             ...schedules[currentTable],
-            hours: updatedHours,
+            shifts: updatedShifts,
         },
     };
     setSchedules(updatedSchedules);
 
-    setEditingHourIndex(null);
-    setNewHourLabel(""); // Reset the newHourLabel state
+    setEditingShiftIndex(null);
+    setNewShiftLabel(""); // Reset the newShiftLabel state
 };
 
-export const handleDeleteHour = (index, hours, setHours, schedule, setSchedule, schools, schedules, setSchedules, currentTable) => {
-    if (window.confirm("Are you sure you want to delete this hour?")) {
-        const updatedHours = hours.filter((_, i) => i !== index);
+export const handleDeleteShift = (index, shifts, setShifts, schedule, setSchedule, schools, schedules, setSchedules, currentTable) => {
+    if (window.confirm("Are you sure you want to delete this shift?")) {
+        const updatedShifts = shifts.filter((_, i) => i !== index);
 
         const updatedSchedule = { ...schedule };
         schools.forEach((school) => {
             if (updatedSchedule[school]) {
-                delete updatedSchedule[school][hours[index]];
+                delete updatedSchedule[school][shifts[index]];
             }
         });
 
-        setHours(updatedHours);
+        setShifts(updatedShifts);
         setSchedule(updatedSchedule);
 
         const updatedSchedules = {
             ...schedules,
             [currentTable]: {
                 ...schedules[currentTable],
-                hours: updatedHours,
+                shifts: updatedShifts,
                 schedule: updatedSchedule,
             },
         };
@@ -159,3 +159,4 @@ export const handleEditSchool = (index, schools, setEditingSchoolIndex, setNewSc
 export const handleSchoolNameChange = (value, setNewSchoolName) => {
     setNewSchoolName(value);
 };
+
