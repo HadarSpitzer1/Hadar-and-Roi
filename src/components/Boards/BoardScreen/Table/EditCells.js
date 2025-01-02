@@ -1,12 +1,24 @@
-export const handleTeacherSelect = (school, Slot, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
-    const newSchedule = { ...schedule };
+export const handleTeacherSelect = (school, slot, teacher, schedule, setSchedule, schedules, setSchedules, currentTable) => {
+    // Create a deep copy of the schedule
+    const newSchedule = JSON.parse(JSON.stringify(schedule));
+    
+    // Initialize the school object if it doesn't exist
     if (!newSchedule[school]) {
         newSchedule[school] = {};
     }
-    newSchedule[school][Slot] = teacher || undefined;
+    
+    // Set the teacher for this specific slot
+    newSchedule[school][slot] = teacher || undefined;
 
+    // If the slot is empty and there's no other data for this school, clean up
+    if (!teacher && Object.keys(newSchedule[school]).length === 0) {
+        delete newSchedule[school];
+    }
+
+    // Update local state
     setSchedule(newSchedule);
 
+    // Update global state
     const updatedSchedules = {
         ...schedules,
         [currentTable]: {
@@ -19,17 +31,33 @@ export const handleTeacherSelect = (school, Slot, teacher, schedule, setSchedule
 };
 
 export const handleAddSchool = (schools, setSchools, schedules, setSchedules, currentTable) => {
-    const newSchoolName = `עמודה ${schools.length + 1}`;
-    const updatedSchools = [...schools, newSchoolName];
-    setSchools(updatedSchools);
+    if (!currentTable || !schedules[currentTable]) return;
 
+    // Get the current table's schools array
+    const currentSchools = Array.isArray(schedules[currentTable].schools) 
+        ? [...schedules[currentTable].schools] 
+        : [];
+    
+    // Create new school name based on current table's schools length
+    const newSchoolName = `עמודה ${currentSchools.length + 1}`;
+    
+    // Create updated schools array
+    const updatedSchools = [...currentSchools, newSchoolName];
+    
+    // Update local state with a new array
+    setSchools([...updatedSchools]);
+
+    // Update schedules state
     const updatedSchedules = {
         ...schedules,
         [currentTable]: {
             ...schedules[currentTable],
-            schools: updatedSchools,
-        },
+            schools: [...updatedSchools], // Create new array
+            slots: schedules[currentTable].slots ? [...schedules[currentTable].slots] : [],
+            schedule: schedules[currentTable].schedule ? {...schedules[currentTable].schedule} : {}
+        }
     };
+    
     setSchedules(updatedSchedules);
 };
 
@@ -135,21 +163,25 @@ export const handleSchoolNameSave = (index, newSchoolName, schools, setSchools, 
 };
 
 export const handleDeleteSchool = (index, schools, setSchools, schedule, setSchedule, schedules, setSchedules, currentTable) => {
+    if (!currentTable || !schedules[currentTable]) return;
+    
     if (window.confirm("Are you sure you want to delete this school?")) {
+        // Create new arrays/objects to avoid reference issues
         const updatedSchools = schools.filter((_, i) => i !== index);
+        const schoolToDelete = schools[index];
+        const updatedSchedule = {...schedule};
+        delete updatedSchedule[schoolToDelete];
 
-        const { [schools[index]]: _, ...updatedSchedule } = schedule;
-
-        setSchools(updatedSchools);
-        setSchedule(updatedSchedule);
+        setSchools([...updatedSchools]);
+        setSchedule({...updatedSchedule});
 
         const updatedSchedules = {
             ...schedules,
             [currentTable]: {
                 ...schedules[currentTable],
-                schools: updatedSchools,
-                schedule: updatedSchedule,
-            },
+                schools: [...updatedSchools],
+                schedule: {...updatedSchedule}
+            }
         };
         setSchedules(updatedSchedules);
     }

@@ -64,8 +64,12 @@ const TableBody = ({
                       ? "bg-red-200 dark:bg-red-800 border-red-500 dark:border-red-500 text-gray-700 dark:text-gray-200"
                       : "bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-800 text-gray-700 dark:text-gray-200"
                   }`}
-                  value={schedule[school]?.[slotGroup.shift] || ""}
-                  onChange={(e) => handleTeacherSelect(school, slotGroup.shift, e.target.value)}
+                  value={schedule[school]?.[`${slotGroup.shift}-${slotGroup.slots[0]}`] || ""}
+                  onChange={(e) => handleTeacherSelect(
+                    school, 
+                    `${slotGroup.shift}-${slotGroup.slots[0]}`, 
+                    e.target.value
+                  )}
                 >
                   <option value="">בחר מורה</option>
                   {employees.map((teacher) => (
@@ -99,8 +103,12 @@ const TableBody = ({
                         ? "bg-red-200 dark:bg-red-800 border-red-500 dark:border-red-500 text-gray-700 dark:text-gray-200"
                         : "bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-800 text-gray-700 dark:text-gray-200"
                     }`}
-                    value={schedule[school]?.[slot] || ""}
-                    onChange={(e) => handleTeacherSelect(school, slot, e.target.value)}
+                    value={schedule[school]?.[`${slotGroup.shift}-${slot}`] || ""}
+                    onChange={(e) => handleTeacherSelect(
+                      school, 
+                      `${slotGroup.shift}-${slot}`, 
+                      e.target.value
+                    )}
                   >
                     <option value="">בחר מורה</option>
                     {employees.map((teacher) => (

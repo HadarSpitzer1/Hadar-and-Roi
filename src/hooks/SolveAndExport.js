@@ -73,25 +73,34 @@ const useSolveAndExport = ({ employees, employeeData, schools, slots, currentTab
             const rawSchedule = response.data.schedule;
             const newSchedule = {};
 
-            const numOfSchools = schools.length;
-            const numOfSlots = slots.length;
+            // First, initialize the structure for each school
+            schools.forEach(school => {
+                newSchedule[school] = {};
+            });
 
-            for (const i in rawSchedule) {
-                const index = parseInt(i, 10);
-                const slotIndex = Math.floor(index / numOfSchools);
-                const schoolIndex = index % numOfSchools;
-
-                if (slotIndex < numOfSlots && schoolIndex < numOfSchools) {
-                    const slot = slots[slotIndex];
-                    const school = schools[schoolIndex];
-                    const teacher = rawSchedule[i];
-
-                    if (!newSchedule[school]) {
-                        newSchedule[school] = {};
-                    }
-                    newSchedule[school][slot] = teacher;
-                }
-            }
+            // For each slot group
+            slots.forEach((slotGroup, shiftIndex) => {
+                // For each sub-slot in the slot group
+                slotGroup.slots.forEach((slot, slotIndex) => {
+                    // Calculate the base index for this row
+                    const baseIndex = (shiftIndex * schools.length) + (slotIndex * schools.length);
+                    
+                    // For each school in this row
+                    schools.forEach((school, schoolIndex) => {
+                        const index = baseIndex + schoolIndex;
+                        const teacher = rawSchedule[index.toString()];
+                        
+                        if (teacher) {
+                            // Make sure the school exists in newSchedule
+                            if (!newSchedule[school]) {
+                                newSchedule[school] = {};
+                            }
+                            // Assign the teacher to this slot using the composite key
+                            newSchedule[school][`${slotGroup.shift}-${slot}`] = teacher;
+                        }
+                    });
+                });
+            });
 
             const updatedSchedules = {
                 ...schedules,

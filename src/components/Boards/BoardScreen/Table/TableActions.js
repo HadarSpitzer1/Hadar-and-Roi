@@ -74,7 +74,7 @@ export const handleSave = async (username, schedules, employees, getAccessTokenS
 export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
     const newTableKey = `טבלה ${Object.keys(schedules).length + 1}`;
     const newTable = {
-        schools: [`עמודה ${Object.keys(schedules).length + 1}`],
+        schools: [`עמודה 1`],
         slots: [{
             shift: "משמרת 1",
             slots: ["תא 1"]
@@ -85,9 +85,9 @@ export const addNewTable = (schedules, setSchedules, setCurrentTable, setSchools
     const updatedSchedules = { ...schedules, [newTableKey]: newTable };
     setSchedules(updatedSchedules);
     setCurrentTable(newTableKey);
-    setSchools(newTable.schools);
-    setSlots(newTable.slots);
-    setSchedule(newTable.schedule);
+    setSchools([...newTable.schools]);
+    setSlots([...newTable.slots]);
+    setSchedule({...newTable.schedule});
 };
 
 export const deleteCurrentTable = (currentTable, schedules, setSchedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
@@ -137,12 +137,16 @@ export const handleRenameTable = (newTableName, currentTable, schedules, setSche
     setNewTableName("");
 };
 export const handleTableSwitch = (tableKey, schedules, setCurrentTable, setSchools, setSlots, setSchedule) => {
-    setCurrentTable(tableKey);
-
     const tableData = schedules[tableKey] || {};
-    setSchools(tableData.schools || []);
-    setSlots(tableData.slots || []);
-    setSchedule(tableData.schedule || {});
+    
+    const newSchools = Array.isArray(tableData.schools) ? [...tableData.schools] : [];
+    const newSlots = Array.isArray(tableData.slots) ? JSON.parse(JSON.stringify(tableData.slots)) : [];
+    const newSchedule = tableData.schedule ? {...tableData.schedule} : {};
+    
+    setCurrentTable(tableKey);
+    setSchools(newSchools);
+    setSlots(newSlots);
+    setSchedule(newSchedule);
 };
 
 const TableActionButton = ({ onClick, icon, label, color = "indigo" }) => {
