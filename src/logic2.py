@@ -1,116 +1,203 @@
-from z3 import *
+from z3 import Optimize, Int, If, Sum, Implies, Or, sat
+from flask import jsonify, make_response
 
-# Define the number of employees and time slots
-num_employees = 22  # Example number of employees
-num_days = 7
-num_slots = 14
+def security(workers, managers, num_days=7, num_slots=15, 
+            unavailable_constraints=None, prefer_not_to=None):
+    """
+    Entry point for scheduling.
+    :param workers: list of employee names (strings)
+    :param managers: list of manager names (subset of 'workers')
+    :param num_days: integer, how many days to schedule
+    :param num_slots: integer, how many slots per day
+    :param unavailable_constraints: dict(employee -> list of blocked indices)
+    :param prefer_not_to: dict(employee -> list of disliked indices) (soft constraints)
+    :return: dictionary with schedule OR None if no solution
+    """
+    schedule_solution = solve_schedule(
+        employees=workers,
+        num_days=num_days,
+        num_slots=num_slots,
+        managers=managers,
+        unavailable_constraints=unavailable_constraints or {},
+        prefer_not_to=prefer_not_to or {}
+    )
+    return schedule_solution
 
-# Create a Z3 solver
-solver = Solver()
+def solve_schedule(employees, num_days, num_slots, managers,
+                  unavailable_constraints, prefer_not_to):
+    # Use Optimize() instead of Solver() to handle soft constraints
+    opt = Optimize()
+    num_employees = len(employees)
 
-# Create a 2D list of boolean variables for scheduling
-schedule = [[ [Bool(f'employee_{i}_day_{d}_slot_{s}') for s in range(num_slots)] for i in range(num_employees)] for d in range(num_days)]
+    # Create a 2D array of Int variables: schedule[d][s] ∈ [0..num_employees - 1]
+    schedule = [
+        [Int(f'schedule_{d}_{s}') for s in range(num_slots)]
+        for d in range(num_days)
+    ]
 
-# Define the list of managers (example: employees 0, 1, and 2 are managers)
-managers = [0, 1, 2,3,4,5,6]  # Adjust this list based on your actual manager IDs
-
-def exactly_one_employee_per_slot(solver, schedule, num_days, num_slots, num_employees):
+    # Constrain domain of each schedule variable to valid employee indices
     for d in range(num_days):
         for s in range(num_slots):
-            solver.add(Sum([If(schedule[d][i][s], 1, 0) for i in range(num_employees)]) == 1)
+            opt.add(schedule[d][s] >= 0, schedule[d][s] < num_employees)
 
-def add_one_schedule_per_group_per_day(solver, schedule, num_days, num_employees):
-    for d in range(num_days):
-        for i in range(num_employees):
-            # Group 1: Slots 0-5
-            solver.add(Sum([If(schedule[d][i][s], 1, 0) for s in range(6)]) <= 1)
-            # Group 2: Slots 6-9
-            solver.add(Sum([If(schedule[d][i][s], 1, 0) for s in range(6, 10)]) <= 1)
-            # Group 3: Slots 10-13
-            solver.add(Sum([If(schedule[d][i][s], 1, 0) for s in range(10, 14)]) <= 1)
+    # Process unavailable constraints
+    for e_name, blocked_indices in unavailable_constraints.items():
+        if e_name not in employees:
+            continue
+        e_idx = employees.index(e_name)
+        for idx in blocked_indices:
+            d = idx // num_slots
+            s = idx % num_slots
+            if d < num_days and s < num_slots:
+                opt.add(schedule[d][s] != e_idx)
 
-def add_max_six_times_per_employee(solver, schedule, num_days, num_slots, num_employees):
+    # Define slot groups
+    group1 = list(range(0, 6))    # slots 0..5
+    group2 = list(range(6, 10))   # slots 6..9
+    group3 = list(range(10, 14))  # slots 10..13
+
+    # Build a quick lookup of manager indices
+    manager_indices = [employees.index(m) for m in managers if m in employees]
+
+    # 1) Each employee can work at most 6 times total
     for i in range(num_employees):
-        solver.add(Sum([If(schedule[d][i][s], 1, 0) for d in range(num_days) for s in range(num_slots)]) <= 6)
-
-def add_no_double_scheduling_in_group_two(solver, schedule, num_days, num_employees):
-    for d in range(num_days):
-        for i in range(num_employees):
-            # If scheduled in group 2 (slots 6-9), they cannot be scheduled in other groups
-            solver.add(Implies(Sum([If(schedule[d][i][s], 1, 0) for s in range(6, 10)]) >= 1,
-                                Sum([If(schedule[d][i][s], 1, 0) for s in range(0, 6)]) == 0))
-            solver.add(Implies(Sum([If(schedule[d][i][s], 1, 0) for s in range(6, 10)]) >= 1,
-                                Sum([If(schedule[d][i][s], 1, 0) for s in range(10, 14)]) == 0))
-
-def add_manager_constraint(solver, schedule, num_days, num_employees):
-    for d in range(num_days):
-        # Ensure at least one manager is scheduled in each group for each day
-        for group_start in [0, 6, 10]:  # Starting slots for each group
-            # Adjust the end range to avoid IndexError
-            end_slot = min(group_start + 5, num_slots)  # Ensure we don't exceed num_slots
-            solver.add(Sum([If(schedule[d][m][s], 1, 0) for m in managers for s in range(group_start, end_slot)]) >= 1)
-
-def add_preference_no_double_scheduling_per_day(solver, schedule, num_days, num_employees):
-    for d in range(num_days):
-        for i in range(num_employees):
-            # Create a penalty variable for double scheduling
-            penalty = Int(f'penalty_{d}_{i}')
-            # Add a constraint that counts the number of slots scheduled for the employee
-            scheduled_count = Sum([If(schedule[d][i][s], 1, 0) for s in range(num_slots)])
-            # The penalty is 1 if the employee is scheduled more than once
-            solver.add(penalty >= scheduled_count - 1)
-            solver.add(penalty >= 0)  # Penalty cannot be negative
-
-            # Optionally, you can add a soft constraint to minimize the total penalty
-            # This would require a separate objective function if using a solver that supports it
-
-# Call the constraint functions
-exactly_one_employee_per_slot(solver, schedule, num_days, num_slots, num_employees)
-add_one_schedule_per_group_per_day(solver, schedule, num_days, num_employees)
-add_max_six_times_per_employee(solver, schedule, num_days, num_slots, num_employees)
-add_no_double_scheduling_in_group_two(solver, schedule, num_days, num_employees)
-add_manager_constraint(solver, schedule, num_days, num_employees)
-add_preference_no_double_scheduling_per_day(solver, schedule, num_days, num_employees)
-
-def print_schedule(schedule_table, num_days, num_slots):
-    # Define the width for employee names and padding
-    employee_width = 6
-    padding = 2
-
-    # Print the schedule table
-   
-    print()  # New line after header
-    for d in range(num_days):
-        print("-" * employee_width + "|", end='')  # Adjust separator length
-    print()  # New line after header separator
-
-    for s in range(num_slots):
-        print(f"| Slot {s:<2} |", end='')
+        total_shifts_for_i = []
         for d in range(num_days):
-            # Use a fixed width for the output, e.g., 20 characters with padding
-            employee_list = schedule_table[s][d].strip(', ') if schedule_table[s][d] else 'Free'
-            print(f" {employee_list:<{employee_width}} |", end='')  # Adjust padding here
-        print()  # New line after each slot
+            for s in range(num_slots):
+                total_shifts_for_i.append(If(schedule[d][s] == i, 1, 0))
+        opt.add(Sum(total_shifts_for_i) <= 6)
 
+    # 2) One schedule per group per day for each employee
+    for d in range(num_days):
+        for i in range(num_employees):
+            opt.add(Sum([If(schedule[d][s] == i, 1, 0) for s in group1]) <= 1)
+            opt.add(Sum([If(schedule[d][s] == i, 1, 0) for s in group2]) <= 1)
+            opt.add(Sum([If(schedule[d][s] == i, 1, 0) for s in group3]) <= 1)
 
-        # Add a larger separation after the 6th row
-        if s == 5 or s==9:  # After the 6th row (index 5)
-            print("\n" + "-" * 70 + "\n")  # Larger separation line
+    # 3) No double-scheduling in group2
+    for d in range(num_days):
+        for i in range(num_employees):
+            in_group2 = Sum([If(schedule[d][s] == i, 1, 0) for s in group2])
+            in_group1 = Sum([If(schedule[d][s] == i, 1, 0) for s in group1])
+            in_group3 = Sum([If(schedule[d][s] == i, 1, 0) for s in group3])
+            opt.add(Implies(in_group2 >= 1, in_group1 == 0))
+            opt.add(Implies(in_group2 >= 1, in_group3 == 0))
 
-# Check if the solution exists
-if solver.check() == sat:
-    model = solver.model()
-    # Create a table to hold the schedule
-    schedule_table = [['' for _ in range(num_days)] for _ in range(num_slots)]
-    
-    # Populate the schedule table
+    # 4) Manager constraint: each group each day must have at least 1 manager
+    for d in range(num_days):
+        for grp in (group1, group2, group3):
+            opt.add(
+                Sum([
+                    If(Or([schedule[d][s] == m for m in manager_indices]), 1, 0)
+                    for s in grp
+                ]) >= 1
+            )
+
+    # 5) Process prefer_not_to constraints (soft constraints)
+    prefer_not_to_penalties = []
+    for e_name, prefer_indices in prefer_not_to.items():
+        if e_name not in employees:
+            continue
+        e_idx = employees.index(e_name)
+        for idx in prefer_indices:
+            d = idx // num_slots
+            s = idx % num_slots
+            if d < num_days and s < num_slots:
+                penalty_expr = If(schedule[d][s] == e_idx, 1, 0)
+                prefer_not_to_penalties.append(penalty_expr)
+
+    # Add the prefer_not_to penalties to the optimization
+    if prefer_not_to_penalties:
+        total_prefer_not_penalty = Sum(prefer_not_to_penalties)
+        opt.minimize(total_prefer_not_penalty)
+
+    # 6) Penalty for multiple shifts per day (soft constraint)
+    daily_penalties = []
+    for d in range(num_days):
+        for i in range(num_employees):
+            penalty = Int(f'penalty_{d}_{i}')
+            scheduled_count = Sum([If(schedule[d][s] == i, 1, 0) for s in range(num_slots)])
+            opt.add(penalty >= scheduled_count - 1)
+            opt.add(penalty >= 0)
+            daily_penalties.append(penalty)
+
+    # Also minimize the daily scheduling penalties
+    if daily_penalties:
+        opt.minimize(Sum(daily_penalties))
+
+    # Solve
+    check_result = opt.check()
+    if check_result != sat:
+        return None
+
+    model = opt.model()
+    return build_schedule(model, schedule, employees, num_days, num_slots)
+
+def build_schedule(model, schedule, employees, num_days, num_slots):
+    """
+    Build a Python dictionary with the final schedule assignments.
+    Keys are integers: d * num_slots + s, which uniquely represents
+    (day d, slot s).
+    """
+    result = {}
     for d in range(num_days):
         for s in range(num_slots):
-            for i in range(num_employees):
-                if model.evaluate(schedule[d][i][s]):
-                    schedule_table[s][d] += f'  {i}, '
+            emp_idx = model[schedule[d][s]].as_long()
+            key = str(d * num_slots + s)
+            result[key] = employees[emp_idx]
+    return result
 
-    # Call the print function
-    print_schedule(schedule_table, num_days, num_slots)
-else:
-    print("No solution found.")
+if __name__ == "__main__":
+    # Example usage with the new constraints
+    import json
+
+    # Example JSON request payload
+    request_json = json.dumps({
+        "user": "security",
+        "num_days": 7,
+        "num_slots": 14,
+        "workers": [
+            "Employee1", "Employee2", "Employee3", "Employee4", "Employee5",
+            "Employee6", "Employee7", "Employee8", "Employee9", "Employee10",
+            "Employee11", "Employee12", "Employee13", "Employee14", "Employee15",
+            "Employee16", "Employee17", "Employee18", "Employee19", "Employee20",
+            "Employee21", "Employee22"
+        ],
+        "managers": ["Employee1", "Employee2", "Employee3", "Employee4", "Employee5"],
+        "unavailable_constraints": {
+            "Employee1": [0, 1, 2],  # Employee1 can't work in these slots
+            "Employee2": [10, 11, 12]  # Employee2 can't work in these slots
+        },
+        "prefer_not_to": {
+            "Employee3": [20, 21, 22],  # Employee3 prefers not to work in these slots
+            "Employee4": [30, 31, 32]  # Employee4 prefers not to work in these slots
+        }
+    })
+
+    # Deserialize JSON string back into a Python dictionary
+    request_data = json.loads(request_json)
+
+    # Extract the data from the JSON object
+    workers = request_data.get('workers', [])
+    num_days = request_data.get('num_days', 7)
+    num_slots = request_data.get('num_slots', 14)
+    managers = request_data.get('managers', [])
+    unavailable = request_data.get('unavailable_constraints', {})
+    prefer_not_to = request_data.get('prefer_not_to', {})
+
+    # Call the security function with the new constraints
+    schedule_dict = security(
+        workers, 
+        managers, 
+        num_days=num_days, 
+        num_slots=num_slots,
+        unavailable_constraints=unavailable,
+        prefer_not_to=prefer_not_to
+    )
+    
+    # Output the result
+    if schedule_dict is not None:
+        print("Found a schedule:")
+        print(json.dumps(schedule_dict, indent=4))
+    else:
+        print("No solution found.")
