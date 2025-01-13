@@ -20,6 +20,7 @@ const AppContent = ({ username, getAccessTokenSilently, isDarkMode, toggleDarkMo
                 if (data) {
                     setSchedules(data.tables || {});
                     setEmployees(data.employees || []);
+                    console.log("EMPLOYEE PRINTER  "+data.employees)
                     const tableKeys = Object.keys(data.tables || {});
                     if (tableKeys.length > 0) {
                         setCurrentTable(tableKeys[0]);

@@ -79,7 +79,7 @@ const BoardsScreen = ({username, getAccessTokenSilently}) => {
     };
 
     const handleSaveClick = () => {
-        handleSave(username, schedules, employees, getAccessTokenSilently,employeeData);
+        handleSave(username, schedules, employees, getAccessTokenSilently, employeeData);
     };
     const handleTableSwitchClick = (tableKey) => {
         handleTableSwitch(tableKey, schedules, setCurrentTable, setSchools, setSlots, setSchedule);

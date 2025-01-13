@@ -13,7 +13,11 @@ export const saveUserData = async (userId, tables, employees, getAccessTokenSile
             `${API_URL}/save`,
             {
                 userId: userId,
-                data: { tables, employees, employeeData },
+                data: { 
+                    tables, 
+                    employees, 
+                    employeeData // This will save the employee codes
+                },
             },
             { headers: { Authorization: `Bearer ${token}` } }
         );

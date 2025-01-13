@@ -21,6 +21,7 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
     removeManager,
     currentTable,
     employeeData,
+    addEmployeeWithCode,
   } = useBoards();
 
   const [newEmployee, setNewEmployee] = useState("");
@@ -32,7 +33,15 @@ const EmployeesScreen = ({username, getAccessTokenSilently }) => {
   const schools = schedules[currentTable]?.schools || [];
   const slots = schedules[currentTable]?.slots || [];
   const handleAddEmployee = () => {
-    addEmployee(username, newEmployee, setEmployees, setNewEmployee, currentTable,getAccessTokenSilently);
+    addEmployee(
+      username, 
+      newEmployee, 
+      setEmployees, 
+      setNewEmployee, 
+      currentTable,
+      getAccessTokenSilently,
+      addEmployeeWithCode
+    );
   };
 
   const handlePromoteToManager = (employee) => {

@@ -23,6 +23,13 @@ export const BoardsProvider = ({ children }) => {
         setManagers((prev) => prev.filter((m) => m !== manager));
     };
 
+    const addEmployeeWithCode = (name, code) => {
+        setEmployeeData(prev => ({
+            ...prev,
+            [name]: code
+        }));
+    };
+
     return (
         <BoardsContext.Provider
             value={{
@@ -40,6 +47,7 @@ export const BoardsProvider = ({ children }) => {
                 setEmployeeData,
                 period,
                 setPeriod,
+                addEmployeeWithCode,
             }}
         >
             {children}

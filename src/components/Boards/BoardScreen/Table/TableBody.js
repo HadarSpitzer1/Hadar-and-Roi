@@ -71,7 +71,7 @@ const TableBody = ({
                     e.target.value
                   )}
                 >
-                  <option value="">בחר מורה</option>
+                  <option value="">בחר</option>
                   {employees.map((teacher) => (
                     <option key={teacher} value={teacher}>
                       {teacher}
@@ -110,7 +110,7 @@ const TableBody = ({
                       e.target.value
                     )}
                   >
-                    <option value="">בחר מורה</option>
+                    <option value="">בחר</option>
                     {employees.map((teacher) => (
                       <option key={teacher} value={teacher}>
                         {teacher}
